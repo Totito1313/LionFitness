@@ -20,4 +20,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Lion Fitness"
-include(":app")
+include(":app", ":core", ":app-wear")
