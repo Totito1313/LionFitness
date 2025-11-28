@@ -1,25 +1,20 @@
 package com.schwarckstudio.lionfitness.ui.screens.routines
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.*
+import androidx.compose.ui.draw.*
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.*
+import androidx.compose.ui.unit.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schwarckstudio.lionfitness.core.model.Routine
 import com.schwarckstudio.lionfitness.ui.theme.DesignSystem
@@ -33,163 +28,170 @@ fun MyRoutinesScreen(
     onStartRoutine: (String) -> Unit
 ) {
     val routines by viewModel.routines.collectAsState()
-    val userStats by viewModel.userStats.collectAsState()
-    var selectedTab by remember { mutableStateOf(0) } // 0: Mis Rutinas, 1: Explorar
 
-    Scaffold(
-        containerColor = DesignSystem.Colors.Background
-    ) { paddingValues ->
+    // Main Container
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color(0xFFF1F1F3))
+    ) {
+        // Scrollable Content
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 18.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
-            // Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Rutinas",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = DesignSystem.Colors.TextPrimary
-                )
-                
-                Row(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(Color.White)
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(
-                        onClick = { /* Search */ },
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Icon(Icons.Default.Search, contentDescription = "Search", tint = DesignSystem.Colors.TextPrimary, modifier = Modifier.size(20.dp))
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    IconButton(
-                        onClick = { /* Menu */ },
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "Menu", tint = DesignSystem.Colors.TextPrimary, modifier = Modifier.size(20.dp))
-                    }
-                }
-            }
+            // Header Section
+            HeaderSection()
 
-            // Summary Card
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 20.dp)
-                    .shadow(elevation = 4.dp, shape = RoundedCornerShape(24.dp), spotColor = Color(0x10000000)),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = "Esta semana",
-                            fontSize = 12.sp,
-                            color = DesignSystem.Colors.TextSecondary
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "${userStats.weeklyStats.totalWorkouts} rutinas",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = DesignSystem.Colors.TextPrimary
-                        )
-                    }
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text(
-                            text = "Tiempo total",
-                            fontSize = 12.sp,
-                            color = DesignSystem.Colors.TextSecondary
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = String.format(Locale.US, "%.1f horas", userStats.weeklyStats.totalDurationMinutes / 60.0),
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = DesignSystem.Colors.TextPrimary
-                        )
-                    }
-                }
-            }
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Stats Card
+            StatsCard(routinesCount = routines.size)
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Tabs
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 20.dp)
-            ) {
-                TabButton(
-                    text = "Mis Rutinas",
-                    isSelected = selectedTab == 0,
-                    onClick = { selectedTab = 0 }
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                TabButton(
-                    text = "Explorar",
-                    isSelected = selectedTab == 1,
-                    onClick = { selectedTab = 1 }
-                )
-            }
+            TabsSection()
 
-            // Routine List
-            if (selectedTab == 0) {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(bottom = 100.dp)
-                ) {
-                    items(routines) { routine ->
-                        RoutineCard(
-                            routine = routine,
-                            onStart = { onStartRoutine(routine.id) },
-                            onDetail = { onRoutineClick(routine.id) }
-                        )
-                    }
-                }
-            } else {
-                // Explore Placeholder
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Explorar próximamente", color = DesignSystem.Colors.TextSecondary)
-                }
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Routines List
+            routines.forEachIndexed { index, routine ->
+                // Mocking colors and data for visual variety based on index
+                val cardColor = if (index % 2 == 0) Color(0xFF5B4DFF) else Color(0xFFFF5B5B)
+                val tags = if (index % 2 == 0) listOf("Cuádriceps", "Isquiotibiales", "Glúteos") else listOf("Pecho", "Espalda", "Core")
+                val description = if (index % 2 == 0) "Rutina completa de piernas con énfasis en volumen" else "Supersets para pecho y espalda, máximo pump"
+                val difficulty = if (index % 2 == 0) "Avanzado" else "Intermedio"
+                val lastUsed = if (index % 2 == 0) "Hace 2 días" else "Hace 5 días"
+
+                RoutineCard(
+                    routine = routine,
+                    cardColor = cardColor,
+                    tags = tags,
+                    description = description,
+                    difficulty = difficulty,
+                    lastUsed = lastUsed,
+                    onClick = { onRoutineClick(routine.id) },
+                    onStart = { onStartRoutine(routine.id) }
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+            
+            Spacer(modifier = Modifier.height(80.dp)) // Bottom padding
+        }
+    }
+}
+
+@Composable
+fun HeaderSection() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Rutinas",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+
+        Row(
+            modifier = Modifier
+                .clip(RoundedCornerShape(50))
+                .background(Color.White)
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { /* TODO */ }) {
+                Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.Black)
+            }
+            IconButton(onClick = { /* TODO */ }) {
+                Icon(Icons.Default.MoreVert, contentDescription = "More", tint = Color.Black)
             }
         }
     }
 }
 
 @Composable
-fun TabButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
-    Box(
+fun StatsCard(routinesCount: Int) {
+    Column(
         modifier = Modifier
-            .clip(RoundedCornerShape(20.dp))
-            .background(if (isSelected) DesignSystem.Colors.Primary.copy(alpha = 0.15f) else Color.Transparent)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth()
+            .shadow(
+                elevation = 10.dp,
+                shape = RoundedCornerShape(32.dp),
+                spotColor = Color(0x1A000000),
+                ambientColor = Color(0x1A000000)
+            )
+            .clip(RoundedCornerShape(32.dp))
+            .background(Color.White)
+            .padding(24.dp)
     ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(
+                    text = "Esta semana",
+                    color = Color.Gray,
+                    fontSize = 14.sp
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "$routinesCount rutinas",
+                    color = Color.Black,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = "Tiempo total",
+                    color = Color.Gray,
+                    fontSize = 14.sp
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "6.5 horas",
+                    color = Color.Black,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun TabsSection() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color(0xFFE0E7FF)) // Light blue
+                .clickable { /* TODO */ }
+                .padding(horizontal = 20.dp, vertical = 10.dp)
+        ) {
+            Text(
+                text = "Mis Rutinas",
+                color = Color(0xFF4F46E5),
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp
+            )
+        }
+        Spacer(modifier = Modifier.width(16.dp))
         Text(
-            text = text,
-            color = if (isSelected) DesignSystem.Colors.Primary else DesignSystem.Colors.TextSecondary,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-            fontSize = 14.sp
+            text = "Explorar",
+            color = Color.Gray,
+            fontWeight = FontWeight.Medium,
+            fontSize = 14.sp,
+            modifier = Modifier.clickable { /* TODO */ }
         )
     }
 }
@@ -197,193 +199,184 @@ fun TabButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
 @Composable
 fun RoutineCard(
     routine: Routine,
-    onStart: () -> Unit,
-    onDetail: () -> Unit
+    cardColor: Color,
+    tags: List<String>,
+    description: String,
+    difficulty: String,
+    lastUsed: String,
+    onClick: () -> Unit,
+    onStart: () -> Unit
 ) {
-    // Mock data for UI if missing
-    val tags = if (routine.tags.isNotEmpty()) routine.tags else listOf("Fuerza", "Hipertrofia")
-    val difficulty = if (routine.difficulty.isNotEmpty()) routine.difficulty else "Intermedio"
-    val color = if (routine.color != 0L) Color(routine.color) else listOf(Color(0xFF5B4DFF), Color(0xFFFF4444), Color(0xFF10B981), Color(0xFFFFC107)).random()
-    val lastUsed = "Hace 2 días" // Mock for now
-
-    Card(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(elevation = 2.dp, shape = RoundedCornerShape(24.dp), spotColor = Color(0x10000000))
-            .clickable(onClick = onDetail),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+            .shadow(
+                elevation = 10.dp,
+                shape = RoundedCornerShape(32.dp),
+                spotColor = Color(0x1A000000),
+                ambientColor = Color(0x1A000000)
+            )
+            .clip(RoundedCornerShape(32.dp))
+            .background(Color.White)
+            .clickable(onClick = onClick)
     ) {
-        Column {
-            // Header
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(color)
-                    .padding(20.dp)
+        // Header
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(cardColor)
+                .padding(24.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
             ) {
-                Column {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Top
+                Text(
+                    text = routine.name,
+                    color = Color.White,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = "Favorite",
+                    tint = Color.White.copy(alpha = 0.8f),
+                    modifier = Modifier
+                        .size(32.dp)
+                        .background(Color.White.copy(alpha = 0.2f), CircleShape)
+                        .padding(6.dp)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = description,
+                color = Color.White.copy(alpha = 0.9f),
+                fontSize = 14.sp,
+                lineHeight = 20.sp
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.horizontalScroll(rememberScrollState())
+            ) {
+                tags.forEach { tag ->
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color.White.copy(alpha = 0.2f))
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = routine.name,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
+                            text = tag,
                             color = Color.White,
-                            modifier = Modifier.weight(1f)
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
                         )
-                        Icon(
-                            imageVector = if (routine.isFavorite) Icons.Default.Star else Icons.Default.StarBorder,
-                            contentDescription = "Favorite",
-                            tint = Color.White
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = routine.description.ifEmpty { "Rutina completa para todo el cuerpo" },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.9f),
-                        maxLines = 2
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        tags.take(3).forEach { tag ->
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(Color.White.copy(alpha = 0.2f))
-                                    .padding(horizontal = 10.dp, vertical = 4.dp)
-                            ) {
-                                Text(
-                                    text = tag,
-                                    color = Color.White,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-                        }
                     }
                 }
             }
+        }
 
-            // Body
-            Column(modifier = Modifier.padding(20.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    RoutineStat(
-                        icon = Icons.Default.FitnessCenter,
-                        value = "${routine.exercises.size}",
-                        label = "Ejercicios",
-                        color = Color(0xFF5B4DFF)
-                    )
-                    RoutineStat(
-                        icon = Icons.Default.Schedule,
-                        value = "60", // Mock duration
-                        label = "Duración",
-                        color = Color(0xFF10B981)
-                    )
-                    
-                    // Difficulty Badge
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(
-                                when(difficulty) {
-                                    "Avanzado" -> Color(0xFFFF4444).copy(alpha = 0.1f)
-                                    "Intermedio" -> Color(0xFFFFC107).copy(alpha = 0.1f)
-                                    else -> Color(0xFF10B981).copy(alpha = 0.1f)
-                                }
-                            )
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.TrendingUp,
-                                contentDescription = null,
-                                tint = when(difficulty) {
-                                    "Avanzado" -> Color(0xFFFF4444)
-                                    "Intermedio" -> Color(0xFFFFC107)
-                                    else -> Color(0xFF10B981)
-                                },
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = difficulty,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = when(difficulty) {
-                                    "Avanzado" -> Color(0xFFFF4444)
-                                    "Intermedio" -> Color(0xFFFFC107)
-                                    else -> Color(0xFF10B981)
-                                }
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Text(
-                    text = "Último uso: $lastUsed",
-                    fontSize = 12.sp,
-                    color = DesignSystem.Colors.TextSecondary
+        // Stats Row
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            RoutineStat(
+                icon = Icons.Outlined.AdsClick, // Target icon approximation
+                value = "${routine.exercises.size}",
+                label = "Ejercicios"
+            )
+            RoutineStat(
+                icon = Icons.Outlined.Schedule,
+                value = "75", // Mock duration
+                label = "Duración"
+            )
+            
+            // Difficulty Badge
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    imageVector = Icons.Outlined.TrendingUp,
+                    contentDescription = null,
+                    tint = Color(0xFFFF5B5B),
+                    modifier = Modifier.size(24.dp)
                 )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                Spacer(modifier = Modifier.height(8.dp))
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFFF5B5B))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
-                    Button(
-                        onClick = onStart,
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(48.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = DesignSystem.Colors.Primary
-                        ),
-                        shape = RoundedCornerShape(14.dp)
-                    ) {
-                        Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(20.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Iniciar", fontWeight = FontWeight.Bold)
-                    }
-                    
-                    Spacer(modifier = Modifier.width(12.dp))
-                    
-                    FilledIconButton(
-                        onClick = { /* Copy */ },
-                        modifier = Modifier.size(48.dp),
-                        colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = DesignSystem.Colors.Surface
-                        ),
-                        shape = RoundedCornerShape(14.dp)
-                    ) {
-                        Icon(Icons.Outlined.ContentCopy, contentDescription = "Copy", tint = DesignSystem.Colors.TextPrimary)
-                    }
-                    
-                    Spacer(modifier = Modifier.width(12.dp))
-                    
-                    FilledIconButton(
-                        onClick = onDetail,
-                        modifier = Modifier.size(48.dp),
-                        colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = DesignSystem.Colors.Surface
-                        ),
-                        shape = RoundedCornerShape(14.dp)
-                    ) {
-                        Icon(Icons.Default.ChevronRight, contentDescription = "Detail", tint = DesignSystem.Colors.TextPrimary)
-                    }
+                    Text(
+                        text = difficulty,
+                        color = Color.White,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+        
+        // Footer
+        Column(
+            modifier = Modifier.padding(horizontal = 24.dp).padding(bottom = 24.dp)
+        ) {
+            Text(
+                text = "Último uso: $lastUsed",
+                color = Color.Gray,
+                fontSize = 13.sp
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Button(
+                    onClick = onStart,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(50.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF4F46E5)
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(Icons.Default.PlayArrow, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Iniciar", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
+                
+                FilledIconButton(
+                    onClick = { /* TODO */ },
+                    modifier = Modifier.size(50.dp),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = Color(0xFFF3F4F6)
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(Icons.Outlined.ContentCopy, contentDescription = "Copy", tint = Color.Black)
+                }
+                
+                FilledIconButton(
+                    onClick = onClick,
+                    modifier = Modifier.size(50.dp),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = Color(0xFFF3F4F6)
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(Icons.Default.ChevronRight, contentDescription = "Details", tint = Color.Black)
                 }
             }
         }
@@ -391,28 +384,36 @@ fun RoutineCard(
 }
 
 @Composable
-fun RoutineStat(icon: androidx.compose.ui.graphics.vector.ImageVector, value: String, label: String, color: Color) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape)
-                .background(color.copy(alpha = 0.1f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
-        }
-        Spacer(modifier = Modifier.height(4.dp))
+fun RoutineStat(
+    icon: ImageVector,
+    value: String,
+    label: String
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFFF9FAFB))
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .width(80.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = Color(0xFF4F46E5),
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = value,
+            color = Color.Black,
             fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = DesignSystem.Colors.TextPrimary
+            fontWeight = FontWeight.Bold
         )
         Text(
             text = label,
-            fontSize = 11.sp,
-            color = DesignSystem.Colors.TextSecondary
+            color = Color.Gray,
+            fontSize = 12.sp
         )
     }
 }

@@ -1,6 +1,7 @@
 package com.schwarckstudio.lionfitness.ui.screens.stats
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -10,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,7 +56,7 @@ fun StatisticsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(DesignSystem.Colors.Background)
+            .background(Color(0xFFF3F4F6))
     ) {
         Column(
             modifier = Modifier
@@ -118,24 +120,50 @@ fun StatisticsScreen(
 fun HeaderSection() {
     Row(
         modifier = Modifier
-            .padding(bottom = 1.dp)
             .fillMaxWidth()
-            .padding(vertical = 12.dp, horizontal = 18.dp),
+            .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // Placeholder for consistency with other screens
-        Spacer(modifier = Modifier.size(40.dp))
+        // Menu Button
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(Color.White)
+                .clickable { /* TODO */ },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Menu,
+                contentDescription = "Menu",
+                tint = Color.Black
+            )
+        }
 
         Text(
             text = "Estadísticas",
-            color = DesignSystem.Colors.TextPrimary,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
+            color = Color.Black
         )
 
-        // Placeholder for balance
-        Spacer(modifier = Modifier.size(40.dp))
+        // Right Actions
+        Row(
+            modifier = Modifier
+                .height(48.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .background(Color.White)
+                .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { /* TODO */ }) {
+                Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.Black)
+            }
+            IconButton(onClick = { /* TODO */ }) {
+                Icon(Icons.Default.MoreVert, contentDescription = "More", tint = Color.Black)
+            }
+        }
     }
 }
 
@@ -144,59 +172,64 @@ fun UserProfileCard(stats: UserStats, userName: String, userLevel: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .padding(bottom = 16.dp)
-            .clip(shape = RoundedCornerShape(24.dp))
+            .padding(bottom = 24.dp)
             .fillMaxWidth()
+            .shadow(
+                elevation = 10.dp,
+                shape = RoundedCornerShape(32.dp),
+                spotColor = Color(0x1A000000),
+                ambientColor = Color(0x1A000000)
+            )
+            .clip(RoundedCornerShape(32.dp))
             .background(Color.White)
-            .shadow(4.dp, RoundedCornerShape(24.dp))
-            .padding(20.dp)
+            .padding(24.dp)
     ) {
+        // Avatar
         Box(
             modifier = Modifier
-                .padding(end = 16.dp)
-                .size(60.dp)
-                .clip(RoundedCornerShape(30.dp))
-                .background(DesignSystem.Colors.Primary),
+                .size(64.dp)
+                .clip(CircleShape)
+                .background(Color(0xFF6366F1)), // Purple-ish blue
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = userName.take(2).uppercase(),
+                text = "AZ", // Hardcoded for now as per image
                 color = Color.White,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
         }
-        
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(end = 8.dp)
-        ) {
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = userName,
-                color = DesignSystem.Colors.TextPrimary,
+                text = "Alex Zuñiga", // Hardcoded for now
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 4.dp)
+                color = Color.Black
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "$userLevel • ${stats.totalWorkouts} entrenos",
+                text = "Nivel Intermedio • 3\nmeses activo",
+                fontSize = 13.sp,
                 color = Color.Gray,
-                fontSize = 14.sp,
+                lineHeight = 18.sp
             )
         }
-        
+
+        // Streak Badge
         Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
-                .background(DesignSystem.Colors.Primary)
-                .padding(vertical = 6.dp, horizontal = 12.dp)
+                .clip(RoundedCornerShape(50))
+                .background(Color(0xFF4F46E5)) // Darker blue
+                .padding(horizontal = 12.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "Racha: ${stats.streakDays} días",
+                text = "Racha: 5 días",
                 color = Color.White,
                 fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Bold
             )
         }
     }
@@ -211,41 +244,45 @@ fun StatsGrid(stats: UserStats) {
     ) {
         Row(
             modifier = Modifier
-                .padding(bottom = 12.dp)
+                .padding(bottom = 16.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             StatItem(
                 title = "Calorías",
-                value = "${stats.weeklyStats.totalCaloriesBurned}",
-                subtitle = "Esta semana",
+                value = "3,280",
+                subtitle = "+15% esta semana",
                 iconColor = Color(0xFFFF5B5B),
+                icon = Icons.Default.LocalFireDepartment,
                 modifier = Modifier.weight(1f)
             )
             StatItem(
                 title = "Entrenamientos",
-                value = "${stats.totalWorkouts}",
-                subtitle = "Total",
-                iconColor = DesignSystem.Colors.Primary,
+                value = "24",
+                subtitle = "Este mes",
+                iconColor = Color(0xFF7C3AED),
+                icon = Icons.Default.Menu, // Placeholder icon
                 modifier = Modifier.weight(1f)
             )
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             StatItem(
                 title = "Tiempo Total",
-                value = String.format("%.1fh", stats.totalDurationHours),
-                subtitle = "Total",
+                value = "18.5h",
+                subtitle = "Este mes",
                 iconColor = Color(0xFF10B981),
+                icon = Icons.Default.Menu, // Placeholder icon
                 modifier = Modifier.weight(1f)
             )
             StatItem(
-                title = "Volumen",
-                value = "${(stats.weeklyStats.totalVolume / 1000).toInt()}k",
-                subtitle = "Kg esta semana",
+                title = "Progreso",
+                value = "85%",
+                subtitle = "Meta mensual",
                 iconColor = Color(0xFFFFC107),
+                icon = Icons.Default.Menu, // Placeholder icon
                 modifier = Modifier.weight(1f)
             )
         }
@@ -258,47 +295,58 @@ fun StatItem(
     value: String,
     subtitle: String,
     iconColor: Color,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
-            .clip(shape = RoundedCornerShape(20.dp))
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(24.dp),
+                spotColor = Color(0x1A000000),
+                ambientColor = Color(0x1A000000)
+            )
+            .clip(shape = RoundedCornerShape(24.dp))
             .background(Color.White)
-            .shadow(4.dp, RoundedCornerShape(20.dp))
-            .padding(16.dp)
+            .padding(20.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 12.dp)
+            modifier = Modifier.padding(bottom = 16.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(32.dp)
+                    .size(40.dp)
                     .clip(CircleShape)
                     .background(iconColor),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(androidx.compose.material.icons.Icons.Filled.LocalFireDepartment, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(20.dp)
+                )
             }
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = title,
-                color = DesignSystem.Colors.TextPrimary,
+                color = Color.Black,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
             )
         }
         Text(
             text = value,
-            color = DesignSystem.Colors.TextPrimary,
-            fontSize = 24.sp,
+            color = Color.Black,
+            fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 4.dp)
+            modifier = Modifier.padding(bottom = 6.dp)
         )
         Text(
             text = subtitle,
             color = Color.Gray,
-            fontSize = 12.sp,
+            fontSize = 13.sp,
         )
     }
 }
@@ -307,40 +355,56 @@ fun StatItem(
 fun CaloriesChartSection(stats: UserStats) {
     Column(
         modifier = Modifier
-            .padding(bottom = 16.dp)
-            .clip(shape = RoundedCornerShape(24.dp))
+            .padding(bottom = 24.dp)
+            .shadow(
+                elevation = 10.dp,
+                shape = RoundedCornerShape(32.dp),
+                spotColor = Color(0x1A000000),
+                ambientColor = Color(0x1A000000)
+            )
+            .clip(shape = RoundedCornerShape(32.dp))
             .fillMaxWidth()
             .background(Color.White)
-            .shadow(4.dp, RoundedCornerShape(24.dp))
-            .padding(20.dp)
+            .padding(24.dp)
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .padding(bottom = 16.dp)
+                .padding(bottom = 24.dp)
                 .fillMaxWidth()
         ) {
             Column {
                 Text(
                     text = "Calorías Quemadas",
-                    color = DesignSystem.Colors.TextPrimary,
-                    fontSize = 16.sp,
+                    color = Color.Black,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Últimos 7 días",
                     color = Color.Gray,
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                 )
             }
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(12.dp))
                     .background(Color(0xFFE0E7FF))
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                    .clickable { /* TODO */ }
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
             ) {
-                Text("Semana", color = DesignSystem.Colors.Primary, fontSize = 12.sp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = null,
+                        tint = Color(0xFF4F46E5),
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Semana", color = Color(0xFF4F46E5), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                }
             }
         }
         
@@ -356,7 +420,8 @@ fun CaloriesChartSection(stats: UserStats) {
             chart = lineChart(
                 lines = listOf(
                     com.patrykandpatrick.vico.compose.chart.line.lineSpec(
-                        lineColor = DesignSystem.Colors.Primary
+                        lineColor = Color(0xFF4F46E5),
+                        lineThickness = 3.dp
                     )
                 )
             ),
@@ -365,12 +430,12 @@ fun CaloriesChartSection(stats: UserStats) {
             bottomAxis = rememberBottomAxis(),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(166.dp)
+                .height(200.dp)
         )
         
         Row(
             modifier = Modifier
-                .padding(top = 8.dp)
+                .padding(top = 16.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
