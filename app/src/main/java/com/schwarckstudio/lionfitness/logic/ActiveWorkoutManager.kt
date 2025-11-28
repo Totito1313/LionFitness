@@ -57,6 +57,10 @@ class ActiveWorkoutManager @Inject constructor(
     private val _caloriesBurned = MutableStateFlow(0)
     val caloriesBurned: StateFlow<Int> = _caloriesBurned.asStateFlow()
 
+    private val _workoutDuration = MutableStateFlow(0L)
+    val workoutDuration: StateFlow<Long> = _workoutDuration.asStateFlow()
+
+    private var workoutTimerJob: Job? = null
     private var calorieTimerJob: Job? = null
     private val heartRateSamples = mutableListOf<Int>()
 
@@ -161,8 +165,7 @@ class ActiveWorkoutManager @Inject constructor(
                 exerciseId = routineExercise.exerciseId,
                 exerciseName = routineExercise.exerciseName,
                 sets = sets,
-                notes = routineExercise.notes,
-                supersetId = routineExercise.supersetId
+                notes = routineExercise.notes
             )
         } ?: emptyList()
 
@@ -369,6 +372,23 @@ class ActiveWorkoutManager @Inject constructor(
 
     private fun stopCalorieTimer() {
         calorieTimerJob?.cancel()
+    }
+
+    private fun startWorkoutTimer() {
+        workoutTimerJob?.cancel()
+        _workoutDuration.value = 0
+        workoutTimerJob = scope.launch {
+            val startTime = System.currentTimeMillis()
+            while (isActive) {
+                val elapsed = (System.currentTimeMillis() - startTime) / 1000
+                _workoutDuration.value = elapsed
+                delay(1000)
+            }
+        }
+    }
+
+    private fun stopWorkoutTimer() {
+        workoutTimerJob?.cancel()
     }
 
     fun getPreviousSet(exerciseId: String, setIndex: Int): WorkoutSet? {

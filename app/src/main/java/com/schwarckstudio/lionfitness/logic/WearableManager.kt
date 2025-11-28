@@ -162,7 +162,6 @@ class WearableManager @Inject constructor(
                     // But Watch uses Index for local replacement.
                     // It should probably map Index -> ExerciseId before sending.
                     
-                    val oldExerciseId = parts[0]
                     val newExerciseId = parts[1]
                     scope.launch {
                         _events.emit(WearableEvent.ReplaceExercise(oldExerciseId, newExerciseId))
