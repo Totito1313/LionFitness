@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "790026564498",
+    "project_id": "lionfitness-d76de",
+    "storage_bucket": "lionfitness-d76de.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:790026564498:android:20a284f079f1997c12874b",
+        "android_client_info": {
+          "package_name": "com.schwarckstudio.lionfitness"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTj3WK4PCQBonRE283GHlRwJ_P0Lpe41Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
