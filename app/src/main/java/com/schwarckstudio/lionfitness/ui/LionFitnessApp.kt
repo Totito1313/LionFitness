@@ -90,10 +90,7 @@ fun LionFitnessApp(
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(
-                topBar = {
-                    com.schwarckstudio.lionfitness.ui.components.TopBar(state = topBarState)
-                },
-                // Remove default bottom bar
+                // TopBar removed from here to allow content to scroll under it
                 bottomBar = {},
                 containerColor = Color(0xFFF1F1F3) // Match app background
             ) { innerPadding ->
@@ -370,6 +367,12 @@ fun LionFitnessApp(
                 }
             }
         }
+
+        // TopBar Overlay
+        com.schwarckstudio.lionfitness.ui.components.TopBar(
+            state = topBarState,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
 
         // Floating Navigation Bar Overlay
         if (showBottomBar) {

@@ -204,6 +204,92 @@ fun TopBar(
 // =====================================================================
 
 @Composable
+fun StandardHeaderContainer(
+    content: @Composable RowScope.() -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp) // AJUSTAR ALTURA AQUÍ (Antes 60.dp)
+            .padding(horizontal = 18.dp, vertical = 4.dp), // AJUSTAR PADDING AQUÍ
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        content = content
+    )
+}
+
+/**
+ * Píldora Unificada: Contenedor compartido para Lupa + 3 Puntos
+ */
+@Composable
+fun CombinedPill(
+    onSearchClick: () -> Unit,
+    onMoreClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .height(50.dp)
+            .width(100.dp)
+            .advancedShadow(
+                color = Color.Black,
+                alpha = 0.25f,
+                cornersRadius = 25.dp,
+                shadowBlurRadius = 25.dp
+            )
+            .clip(RoundedCornerShape(25.dp))
+            .background(Color(0xFFF1F1F3).copy(alpha = 0.7f)),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        // Contenedor Izquierdo (Buscar)
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .clickable { onSearchClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_search),
+                    contentDescription = "Buscar",
+                    modifier = Modifier.size(24.dp),
+                    tint = Color.Black
+                )
+            }
+        }
+        
+        // Contenedor Derecho (Más)
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+                contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .clickable { onMoreClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_more_vertical),
+                    contentDescription = "Más",
+                    modifier = Modifier.size(24.dp),
+                    tint = Color.Black
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun EditHeader(title: String, onBackClick: () -> Unit = {}, onActionClick: () -> Unit = {}) {
     StandardHeaderContainer {
         Row(
@@ -261,17 +347,17 @@ fun StatsStyleHeader(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(97.dp)
+            .height(80.dp) // AJUSTAR ALTURA AQUÍ (Antes 85.dp)
     ) {
-        // Gradiente de Fondo (Color -> Transparente)
+        // Fondo con gradiente restaurado
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFFF1F1F3), Color(0xFFF1F1F3).copy(alpha = 0f)),
-                        startY = 0f,
-                        endY = Float.POSITIVE_INFINITY
+                        0.0f to Color(0xFFF1F1F3),
+                        0.55f to Color(0xFFF1F1F3),
+                        1.0f to Color(0xFFF1F1F3).copy(alpha = 0f)
                     )
                 )
         )
@@ -279,7 +365,7 @@ fun StatsStyleHeader(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = 12.dp)
+                .padding(horizontal = 18.dp, vertical = 4.dp) // AJUSTAR PADDING AQUÍ
                 .align(Alignment.TopCenter),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -359,15 +445,17 @@ fun GradientHeader(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(74.dp)
+            .height(56.dp) // AJUSTAR ALTURA AQUÍ (Antes 62.dp)
     ) {
-        // Gradiente
+        // Fondo con gradiente restaurado
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFFF1F1F3), Color.Transparent)
+                        0.0f to Color(0xFFF1F1F3),
+                        0.55f to Color(0xFFF1F1F3),
+                        1.0f to Color(0xFFF1F1F3).copy(alpha = 0f)
                     )
                 )
         )
@@ -375,7 +463,7 @@ fun GradientHeader(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 18.dp, vertical = 12.dp),
+                .padding(horizontal = 18.dp, vertical = 4.dp), // AJUSTAR PADDING AQUÍ
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -409,9 +497,9 @@ fun ActiveTrainingHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xD9F1F1F3)) // #f1f1f3 with 85% alpha
+            .background(Color.Transparent) // Transparent background
             .border(width = 1.dp, color = Color.Black.copy(alpha = 0.05f)) // border-b border-black/5
-            .padding(top = 16.dp, start = 18.dp, end = 18.dp, bottom = 12.dp)
+            .padding(top = 4.dp, start = 18.dp, end = 18.dp, bottom = 4.dp) // AJUSTAR PADDING AQUÍ (Antes 8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
@@ -452,96 +540,6 @@ fun ActiveTrainingHeader(
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 MetricChip(icon = R.drawable.ic_timer, text = duration, color = Color.Black)
                 MetricChip(icon = R.drawable.ic_heart, text = "$heartRate bpm", color = Color(0xFFFF6B6B), bgColor = Color(0x1AFF6B6B))
-            }
-        }
-    }
-}
-
-// =====================================================================
-// COMPONENTES ATÓMICOS
-// =====================================================================
-
-@Composable
-fun StandardHeaderContainer(
-    content: @Composable RowScope.() -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(74.dp)
-            .padding(horizontal = 18.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        content = content
-    )
-}
-
-/**
- * Píldora Unificada: Contenedor compartido para Lupa + 3 Puntos
- */
-@Composable
-fun CombinedPill(
-    onSearchClick: () -> Unit,
-    onMoreClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .height(50.dp)
-            .width(100.dp)
-            .advancedShadow(
-                color = Color.Black,
-                alpha = 0.25f,
-                cornersRadius = 25.dp,
-                shadowBlurRadius = 25.dp
-            )
-            .clip(RoundedCornerShape(25.dp))
-            .background(Color(0xFFF1F1F3).copy(alpha = 0.7f)),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        // Contenedor Izquierdo (Buscar)
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight(),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .clickable { onSearchClick() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_search),
-                    contentDescription = "Buscar",
-                    modifier = Modifier.size(24.dp),
-                    tint = Color.Black
-                )
-            }
-        }
-        
-        // Contenedor Derecho (Más)
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight(),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .clickable { onMoreClick() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_more_vertical),
-                    contentDescription = "Más",
-                    modifier = Modifier.size(24.dp),
-                    tint = Color.Black
-                )
             }
         }
     }
@@ -640,7 +638,7 @@ fun MetricChip(icon: Int, text: String, color: Color, bgColor: Color = Color.Bla
         modifier = Modifier
             .background(bgColor, shape = RoundedCornerShape(12.dp))
             .padding(horizontal = 10.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             painter = painterResource(id = icon),
