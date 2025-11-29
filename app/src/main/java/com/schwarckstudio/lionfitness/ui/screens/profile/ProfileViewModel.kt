@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,7 +26,8 @@ class ProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val exportManager: com.schwarckstudio.lionfitness.logic.ExportManager,
     private val bodyMeasurementsRepository: com.schwarckstudio.lionfitness.core.data.repository.BodyMeasurementsRepository,
-    private val settingsRepository: com.schwarckstudio.lionfitness.core.data.repository.SettingsRepository
+    private val settingsRepository: com.schwarckstudio.lionfitness.core.data.repository.SettingsRepository,
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -52,16 +54,23 @@ class ProfileViewModel @Inject constructor(
     private fun loadUserProfile() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            
-            // Fetch latest measurements
-            val latestMeasurement = bodyMeasurementsRepository.getLatestBodyMeasurement()
-            
-            _uiState.value = _uiState.value.copy(
-                isLoading = false,
-                user = User(uid = "1", email = "alex@example.com", displayName = "Alex Zuñiga"), // Dummy
-                weight = latestMeasurement?.weight,
-                height = latestMeasurement?.height
-            )
+
+            combine(
+                userRepository.getUserFlow(),
+                bodyMeasurementsRepository.getMeasurementLogsFlow()
+            ) { user, measurements ->
+                val latestMeasurement = measurements.firstOrNull()
+                ProfileUiState(
+                    isLoading = false,
+                    user = user,
+                    weight = latestMeasurement?.weight,
+                    height = latestMeasurement?.height,
+                    isDarkTheme = _uiState.value.isDarkTheme,
+                    livePrNotificationsEnabled = _uiState.value.livePrNotificationsEnabled
+                )
+            }.collect { newState ->
+                _uiState.value = newState
+            }
         }
     }
     
@@ -75,12 +84,17 @@ class ProfileViewModel @Inject constructor(
     
     fun updateProfile(displayName: String, weight: Double?, height: Double?) {
         viewModelScope.launch {
-            // Update local state
+            // Get or create user with auth email
+            val currentUser = getUserWithAuthEmail()
+            val updatedUser = currentUser.copy(displayName = displayName)
+            
             _uiState.value = _uiState.value.copy(
-                user = _uiState.value.user?.copy(displayName = displayName),
+                user = updatedUser,
                 weight = weight,
                 height = height
             )
+            
+            android.util.Log.d("ProfileViewModel", "updateProfile: saving user with displayName=$displayName, email=${updatedUser.email}")
             
             // Save measurements if changed
             if (weight != null || height != null) {
@@ -88,11 +102,8 @@ class ProfileViewModel @Inject constructor(
                 val newLog = latest?.copy(
                     weight = weight ?: latest.weight,
                     height = height ?: latest.height,
-                    date = com.google.firebase.Timestamp.now() // Update timestamp for new entry? Or just update latest?
-                    // Ideally we create a new log if it's a new measurement, but for "Profile" edit it might be just updating static data.
-                    // But since we use BodyMeasurements as source of truth, let's create a new log or update latest if it's recent.
-                    // For simplicity, let's just update the UI state for now and assume BodyMeasurements screen handles history.
-                    // Wait, user wants "Profile details". If we save here, it should probably be a new measurement log.
+                    date = com.google.firebase.Timestamp.now(),
+                    id = "" // Force new document for history tracking
                 ) ?: com.schwarckstudio.lionfitness.core.model.BodyMeasurementLog(
                     weight = weight,
                     height = height
@@ -101,19 +112,77 @@ class ProfileViewModel @Inject constructor(
             }
             
             // Update user displayName in Auth/User repo
-            val currentUser = _uiState.value.user
-            if (currentUser != null) {
-                userRepository.saveUser(currentUser)
-            }
+            userRepository.saveUser(updatedUser)
         }
     }
 
     fun updateProfilePicture(uri: android.net.Uri) {
         viewModelScope.launch {
-            val user = _uiState.value.user ?: return@launch
-            val updatedUser = user.copy(photoUrl = uri.toString())
-            userRepository.saveUser(updatedUser)
-            _uiState.value = _uiState.value.copy(user = updatedUser)
+            android.util.Log.d("ProfileViewModel", "updateProfilePicture: uri=$uri")
+            val internalPath = copyToInternalStorage(uri)
+            android.util.Log.d("ProfileViewModel", "updateProfilePicture: internalPath=$internalPath")
+            
+            if (internalPath != null) {
+                val user = getUserWithAuthEmail()
+                val fileUri = android.net.Uri.fromFile(java.io.File(internalPath)).toString()
+                android.util.Log.d("ProfileViewModel", "updateProfilePicture: fileUri=$fileUri")
+                
+                val updatedUser = user.copy(photoUrl = fileUri)
+                userRepository.saveUser(updatedUser)
+                _uiState.value = _uiState.value.copy(user = updatedUser)
+            } else {
+                // Handle error (e.g. show toast or log)
+                // For now, just log
+                println("Failed to copy image to internal storage")
+                android.util.Log.e("ProfileViewModel", "Failed to copy image to internal storage")
+            }
+        }
+    }
+
+    private fun getUserWithAuthEmail(): User {
+        val currentUser = _uiState.value.user
+        if (currentUser != null && currentUser.email.isNotEmpty()) {
+            return currentUser
+        }
+        
+        // Get email from Firebase Auth
+        val authUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        val email = authUser?.email ?: ""
+        val uid = authUser?.uid ?: run {
+            // Use offline UID
+            val androidId = android.provider.Settings.Secure.getString(
+                context.contentResolver,
+                android.provider.Settings.Secure.ANDROID_ID
+            )
+            "offline_$androidId"
+        }
+        
+        android.util.Log.d("ProfileViewModel", "getUserWithAuthEmail: creating new user with email=$email, uid=$uid")
+        
+        return currentUser?.copy(email = email, uid = uid) ?: User(
+            uid = uid,
+            email = email,
+            displayName = currentUser?.displayName ?: authUser?.displayName ?: "",
+            photoUrl = currentUser?.photoUrl ?: ""
+        )
+    }
+
+    private fun copyToInternalStorage(uri: android.net.Uri): String? {
+        return try {
+            val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+            val fileName = "profile_${System.currentTimeMillis()}.jpg"
+            val file = java.io.File(context.filesDir, fileName)
+            val outputStream = java.io.FileOutputStream(file)
+            
+            inputStream.use { input ->
+                outputStream.use { output ->
+                    input.copyTo(output)
+                }
+            }
+            file.absolutePath
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 

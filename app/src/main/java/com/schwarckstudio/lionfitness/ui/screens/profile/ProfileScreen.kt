@@ -75,6 +75,7 @@ fun ProfileScreen(
             ProfileHeader(
                 username = uiState.user?.displayName ?: "Usuario",
                 email = uiState.user?.email ?: "usuario@example.com",
+                photoUrl = uiState.user?.photoUrl,
                 weight = uiState.weight,
                 height = uiState.height
             )
@@ -156,7 +157,7 @@ fun ProfileScreen(
 }
 
 @Composable
-fun ProfileHeader(username: String, email: String, weight: Double?, height: Double?) {
+fun ProfileHeader(username: String, email: String, photoUrl: String?, weight: Double?, height: Double?) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -168,12 +169,23 @@ fun ProfileHeader(username: String, email: String, weight: Double?, height: Doub
                 .background(DesignSystem.Colors.Primary),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(50.dp)
-            )
+            if (photoUrl.isNullOrEmpty()) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(50.dp)
+                )
+            } else {
+                com.skydoves.landscapist.coil3.CoilImage(
+                    imageModel = { photoUrl },
+                    modifier = Modifier.fillMaxSize(),
+                    imageOptions = com.skydoves.landscapist.ImageOptions(
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        alignment = Alignment.Center
+                    )
+                )
+            }
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(

@@ -48,9 +48,24 @@ fun EditProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
-    var displayName by remember(uiState.user) { mutableStateOf(uiState.user?.displayName ?: "") }
-    var weight by remember(uiState.weight) { mutableStateOf(uiState.weight?.toString() ?: "") }
-    var height by remember(uiState.height) { mutableStateOf(uiState.height?.toString() ?: "") }
+    // Local state
+    var displayName by remember { mutableStateOf("") }
+    var weight by remember { mutableStateOf("") }
+    var height by remember { mutableStateOf("") }
+    var isInitialized by remember { mutableStateOf(false) }
+    
+    // Initialize state only once when user data is available
+    androidx.compose.runtime.LaunchedEffect(uiState.user, uiState.weight, uiState.height) {
+        if (!isInitialized && uiState.user != null) {
+            displayName = uiState.user?.displayName ?: ""
+            weight = uiState.weight?.toString() ?: ""
+            height = uiState.height?.toString() ?: ""
+            isInitialized = true
+        }
+    }
+    
+    // Local state for image preview to show immediately
+    var selectedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
 
     Scaffold(
         topBar = {
@@ -102,6 +117,7 @@ fun EditProfileScreen(
                     contract = androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
                 ) { uri ->
                     if (uri != null) {
+                        selectedImageUri = uri
                         viewModel.updateProfilePicture(uri)
                     }
                 }
@@ -117,7 +133,9 @@ fun EditProfileScreen(
                             )
                         }
                 ) {
-                    if (uiState.user?.photoUrl.isNullOrEmpty()) {
+                    val imageModel = selectedImageUri ?: uiState.user?.photoUrl
+                    
+                    if (imageModel == null || (imageModel is String && imageModel.isEmpty())) {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -134,7 +152,7 @@ fun EditProfileScreen(
                         }
                     } else {
                         com.skydoves.landscapist.coil3.CoilImage(
-                            imageModel = { uiState.user!!.photoUrl },
+                            imageModel = { imageModel },
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clip(androidx.compose.foundation.shape.CircleShape),
@@ -170,7 +188,32 @@ fun EditProfileScreen(
                 onValueChange = { displayName = it },
                 label = { Text("Nombre") },
                 modifier = Modifier.fillMaxWidth(),
-                shape = DesignSystem.Shapes.Input
+                shape = DesignSystem.Shapes.Input,
+                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = DesignSystem.Colors.TextPrimary,
+                    unfocusedTextColor = DesignSystem.Colors.TextPrimary,
+                    focusedLabelColor = DesignSystem.Colors.Primary,
+                    unfocusedLabelColor = DesignSystem.Colors.TextSecondary
+                )
+            )
+            
+            // Read-only Email Field
+            OutlinedTextField(
+                value = uiState.user?.email ?: "",
+                onValueChange = { },
+                label = { Text("Correo Electrónico") },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = true,
+                readOnly = true,
+                shape = DesignSystem.Shapes.Input,
+                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = DesignSystem.Colors.TextPrimary,
+                    unfocusedTextColor = DesignSystem.Colors.TextPrimary,
+                    focusedLabelColor = DesignSystem.Colors.Primary,
+                    unfocusedLabelColor = DesignSystem.Colors.TextSecondary,
+                    disabledTextColor = DesignSystem.Colors.TextPrimary,
+                    disabledLabelColor = DesignSystem.Colors.TextSecondary
+                )
             )
             
             OutlinedTextField(
@@ -179,7 +222,13 @@ fun EditProfileScreen(
                 label = { Text("Peso (kg)") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                shape = DesignSystem.Shapes.Input
+                shape = DesignSystem.Shapes.Input,
+                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = DesignSystem.Colors.TextPrimary,
+                    unfocusedTextColor = DesignSystem.Colors.TextPrimary,
+                    focusedLabelColor = DesignSystem.Colors.Primary,
+                    unfocusedLabelColor = DesignSystem.Colors.TextSecondary
+                )
             )
             
             OutlinedTextField(
@@ -188,7 +237,13 @@ fun EditProfileScreen(
                 label = { Text("Altura (cm)") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                shape = DesignSystem.Shapes.Input
+                shape = DesignSystem.Shapes.Input,
+                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = DesignSystem.Colors.TextPrimary,
+                    unfocusedTextColor = DesignSystem.Colors.TextPrimary,
+                    focusedLabelColor = DesignSystem.Colors.Primary,
+                    unfocusedLabelColor = DesignSystem.Colors.TextSecondary
+                )
             )
         }
     }

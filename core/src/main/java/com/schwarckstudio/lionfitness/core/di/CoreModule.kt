@@ -35,9 +35,10 @@ object CoreModule {
     @Singleton
     fun provideUserRepository(
         auth: FirebaseAuth,
-        firestore: FirebaseFirestore
+        firestore: FirebaseFirestore,
+        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context
     ): UserRepository {
-        return UserRepositoryImpl(auth, firestore)
+        return UserRepositoryImpl(auth, firestore, context)
     }
 
 

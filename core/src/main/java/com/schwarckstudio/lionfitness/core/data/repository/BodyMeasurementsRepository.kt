@@ -32,25 +32,35 @@ class BodyMeasurementsRepositoryImpl @Inject constructor(
     }
 
     override fun getMeasurementLogsFlow(): Flow<List<BodyMeasurementLog>> = callbackFlow {
-        val uid = auth.currentUser?.uid
-        if (uid == null) {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
-        }
-
-        val listener = firestore.collection("body_measurements")
-            .whereEqualTo("userId", uid)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    trySend(emptyList())
-                    return@addSnapshotListener
-                }
-                val logs = snapshot?.toObjects(BodyMeasurementLog::class.java) ?: emptyList()
-                val sortedLogs = logs.sortedByDescending { it.date }
-                trySend(sortedLogs)
+        var firestoreListener: com.google.firebase.firestore.ListenerRegistration? = null
+        
+        val authListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            val uid = firebaseAuth.currentUser?.uid
+            firestoreListener?.remove()
+            
+            if (uid == null) {
+                trySend(emptyList())
+            } else {
+                firestoreListener = firestore.collection("body_measurements")
+                    .whereEqualTo("userId", uid)
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null) {
+                            trySend(emptyList())
+                            return@addSnapshotListener
+                        }
+                        val logs = snapshot?.toObjects(BodyMeasurementLog::class.java) ?: emptyList()
+                        val sortedLogs = logs.sortedByDescending { it.date }
+                        trySend(sortedLogs)
+                    }
             }
-        awaitClose { listener.remove() }
+        }
+        
+        auth.addAuthStateListener(authListener)
+        
+        awaitClose {
+            auth.removeAuthStateListener(authListener)
+            firestoreListener?.remove()
+        }
     }
 
     override suspend fun saveMeasurementLog(log: BodyMeasurementLog) {
