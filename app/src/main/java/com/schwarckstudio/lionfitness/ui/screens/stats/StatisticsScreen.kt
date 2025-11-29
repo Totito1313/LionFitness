@@ -59,14 +59,7 @@ fun StatisticsScreen(
 
 
 
-    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
-    LaunchedEffect(Unit) {
-        topBarState.update(
-            variant = TopBarVariant.Stats,
-            onMenuClick = { /* TODO */ },
-            onActionClick = { /* TODO */ }
-        )
-    }
+    // TopBar state managed by LionFitnessApp
 
     Column(
         modifier = Modifier

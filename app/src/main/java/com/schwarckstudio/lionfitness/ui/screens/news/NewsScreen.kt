@@ -15,15 +15,7 @@ import com.schwarckstudio.lionfitness.ui.components.TopBarVariant
 fun NewsScreen() {
     val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
     
-    androidx.compose.runtime.LaunchedEffect(Unit) {
-        topBarState.update(
-            variant = TopBarVariant.News,
-            title = "Noticias",
-            isVisible = true,
-            onMenuClick = { /* Handle menu click */ },
-            onActionClick = { /* Handle action click */ }
-        )
-    }
+    // TopBar state managed by LionFitnessApp
 
     Box(
         modifier = Modifier

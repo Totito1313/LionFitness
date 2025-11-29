@@ -61,13 +61,7 @@ fun BodyMeasurementsScreen(
     }
 
     val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
-    LaunchedEffect(Unit) {
-        topBarState.update(
-            variant = TopBarVariant.BodyMeasurements,
-            onMenuClick = { /* TODO */ },
-            onActionClick = onNavigateToBody
-        )
-    }
+    // TopBar state managed by LionFitnessApp
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(

@@ -89,6 +89,79 @@ fun LionFitnessApp(
     androidx.compose.runtime.CompositionLocalProvider(
         com.schwarckstudio.lionfitness.ui.components.LocalTopBarState provides topBarState
     ) {
+        val userProfile by viewModel.userProfile.collectAsState()
+        
+        // Centralized TopBar State Management
+        // Updates the TopBar immediately when the route changes, preventing race conditions
+        LaunchedEffect(currentRoute, userProfile) {
+            when (currentRoute) {
+                Screen.Home.route -> {
+                    topBarState.update(
+                        variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.Home,
+                        userName = userProfile?.displayName ?: "Alan",
+                        showUserSubtitle = true,
+                        profilePicture = userProfile?.photoUrl,
+                        onActionClick = { navController.navigate(Screen.Profile.route) }
+                    )
+                }
+                Screen.Statistics.route -> {
+                    topBarState.update(
+                        variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.Stats,
+                        title = "Estadísticas"
+                    )
+                }
+                Screen.Routines.route -> {
+                    topBarState.update(
+                        variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.Routines,
+                        title = "Entrenamientos"
+                    )
+                }
+                Screen.BodyMeasurements.route -> {
+                    topBarState.update(
+                        variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.BodyMeasurements,
+                        title = "Medidas Corporales",
+                        onActionClick = { navController.navigate(Screen.Body.route) }
+                    )
+                }
+                Screen.Profile.route -> {
+                    topBarState.update(
+                        variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.UserProfile,
+                        title = "Usuario"
+                    )
+                }
+                Screen.Community.route -> {
+                    topBarState.update(
+                        variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.Community,
+                        title = "Comunidad"
+                    )
+                }
+                Screen.Exercises.route -> {
+                    topBarState.update(
+                        variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.Exercises,
+                        title = "Ejercicios"
+                    )
+                }
+                Screen.News.route -> {
+                    topBarState.update(
+                        variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.News,
+                        title = "Noticias"
+                    )
+                }
+                Screen.Settings.route -> {
+                    topBarState.update(
+                        variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.Settings,
+                        title = "Configuraciones"
+                    )
+                }
+                Screen.Body.route -> {
+                    topBarState.update(
+                        variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.Body,
+                        title = "Cuerpo 3D"
+                    )
+                }
+            }
+        }
+
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(
                 // TopBar removed from here to allow content to scroll under it

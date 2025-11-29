@@ -40,16 +40,7 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
-    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
-    LaunchedEffect(uiState.userName, uiState.userProfileUrl) {
-        topBarState.update(
-            variant = TopBarVariant.Home,
-            userName = uiState.userName ?: "Alan",
-            showUserSubtitle = true,
-            profilePicture = uiState.userProfileUrl,
-            onActionClick = onNavigateToProfile
-        )
-    }
+    // TopBar state managed by LionFitnessApp
 
     Column(
         modifier = Modifier

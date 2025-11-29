@@ -86,7 +86,7 @@ fun TopBar(
 
             // --- GRUPO 3: LISTAS Y ESTADÍSTICAS (Píldora Unificada) ---
             TopBarVariant.Routines -> StatsStyleHeader(
-                title = state.title.ifEmpty { "Entrenamientos" },
+                title = state.title.ifEmpty { "Rutinas" },
                 hasSearch = true,
                 hasMore = true,
                 onMenuClick = state.onMenuClick,

@@ -1,6 +1,7 @@
 package com.schwarckstudio.lionfitness.ui.components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -66,6 +67,35 @@ class TopBarState {
 
 }
 
+
 val LocalTopBarState = staticCompositionLocalOf<TopBarState> {
     error("No TopBarState provided")
+}
+
+@Composable
+fun SafeTopBarUpdate(
+    updateBlock: TopBarState.() -> Unit
+) {
+    val topBarState = LocalTopBarState.current
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    
+    // Use a key to force re-evaluation if dependencies change, 
+    // but primarily we rely on the lifecycle event
+    DisposableEffect(lifecycleOwner, topBarState) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                topBarState.updateBlock()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        
+        // Also update immediately if already resumed (e.g. initial composition)
+        if (lifecycleOwner.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
+            topBarState.updateBlock()
+        }
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 }

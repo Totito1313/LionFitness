@@ -44,14 +44,7 @@ fun ProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
-    LaunchedEffect(Unit) {
-        topBarState.update(
-            variant = TopBarVariant.UserProfile,
-            onMenuClick = { /* TODO */ },
-            onActionClick = { /* TODO */ }
-        )
-    }
+    // TopBar state managed by LionFitnessApp
 
     Column(
         modifier = Modifier

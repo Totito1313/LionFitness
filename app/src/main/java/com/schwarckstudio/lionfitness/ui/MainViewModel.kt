@@ -6,18 +6,29 @@ import com.schwarckstudio.lionfitness.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val preferencesManager: PreferencesManager,
-    private val activeWorkoutManager: com.schwarckstudio.lionfitness.logic.ActiveWorkoutManager
+    private val activeWorkoutManager: com.schwarckstudio.lionfitness.logic.ActiveWorkoutManager,
+    private val userRepository: com.schwarckstudio.lionfitness.core.data.repository.UserRepository
 ) : ViewModel() {
 
     private val _startDestination = MutableStateFlow<String?>(null)
     val startDestination = _startDestination.asStateFlow()
 
     val finishedWorkout = activeWorkoutManager.finishedWorkout
+    
+    val userProfile = userRepository.getUserFlow()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null
+        )
 
     init {
         val isFirstRun = preferencesManager.isFirstRun

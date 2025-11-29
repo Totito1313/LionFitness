@@ -50,14 +50,7 @@ fun RoutineListScreen(
     var showShareDialog by remember { mutableStateOf(false) }
     var workoutToShare by remember { mutableStateOf<com.schwarckstudio.lionfitness.core.model.WorkoutLog?>(null) }
 
-    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
-    LaunchedEffect(Unit) {
-        topBarState.update(
-            variant = TopBarVariant.Routines,
-            onMenuClick = { /* TODO */ },
-            onActionClick = { /* TODO */ }
-        )
-    }
+    // TopBar state managed by LionFitnessApp
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(

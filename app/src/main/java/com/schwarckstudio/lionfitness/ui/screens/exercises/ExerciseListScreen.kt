@@ -50,14 +50,7 @@ fun ExerciseListScreen(
     // Selection state
     val selectedExerciseIds = remember { mutableStateListOf<String>() }
 
-    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
-    LaunchedEffect(Unit) {
-        topBarState.update(
-            variant = TopBarVariant.Exercises,
-            onMenuClick = { /* TODO */ },
-            onActionClick = { /* TODO */ }
-        )
-    }
+    // TopBar state managed by LionFitnessApp
 
     Box(
         modifier = Modifier
