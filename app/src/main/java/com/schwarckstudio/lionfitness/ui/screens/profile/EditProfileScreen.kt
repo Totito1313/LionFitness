@@ -1,5 +1,8 @@
 package com.schwarckstudio.lionfitness.ui.screens.profile
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,7 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.ui.draw.clip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -83,6 +91,80 @@ fun EditProfileScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Profile Picture Section
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                contentAlignment = androidx.compose.ui.Alignment.Center
+            ) {
+                val launcher = androidx.activity.compose.rememberLauncherForActivityResult(
+                    contract = androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+                ) { uri ->
+                    if (uri != null) {
+                        viewModel.updateProfilePicture(uri)
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clickable {
+                            launcher.launch(
+                                androidx.activity.result.PickVisualMediaRequest(
+                                    androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
+                                )
+                            )
+                        }
+                ) {
+                    if (uiState.user?.photoUrl.isNullOrEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(androidx.compose.foundation.shape.CircleShape)
+                                .background(DesignSystem.Colors.Primary),
+                            contentAlignment = androidx.compose.ui.Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                tint = androidx.compose.ui.graphics.Color.White,
+                                modifier = Modifier.size(50.dp)
+                            )
+                        }
+                    } else {
+                        com.skydoves.landscapist.coil3.CoilImage(
+                            imageModel = { uiState.user!!.photoUrl },
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(androidx.compose.foundation.shape.CircleShape),
+                            imageOptions = com.skydoves.landscapist.ImageOptions(
+                                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                alignment = androidx.compose.ui.Alignment.Center
+                            )
+                        )
+                    }
+                    
+                    // Edit Badge
+                    Box(
+                        modifier = Modifier
+                            .align(androidx.compose.ui.Alignment.BottomEnd)
+                            .size(30.dp)
+                            .clip(androidx.compose.foundation.shape.CircleShape)
+                            .background(androidx.compose.ui.graphics.Color.White)
+                            .border(2.dp, DesignSystem.Colors.Background, androidx.compose.foundation.shape.CircleShape),
+                        contentAlignment = androidx.compose.ui.Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit",
+                            tint = DesignSystem.Colors.Primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+            }
+
             OutlinedTextField(
                 value = displayName,
                 onValueChange = { displayName = it },

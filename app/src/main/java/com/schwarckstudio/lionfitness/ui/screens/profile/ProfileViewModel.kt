@@ -100,7 +100,20 @@ class ProfileViewModel @Inject constructor(
                 bodyMeasurementsRepository.saveMeasurementLog(newLog)
             }
             
-            // TODO: Update user displayName in Auth/User repo
+            // Update user displayName in Auth/User repo
+            val currentUser = _uiState.value.user
+            if (currentUser != null) {
+                userRepository.saveUser(currentUser)
+            }
+        }
+    }
+
+    fun updateProfilePicture(uri: android.net.Uri) {
+        viewModelScope.launch {
+            val user = _uiState.value.user ?: return@launch
+            val updatedUser = user.copy(photoUrl = uri.toString())
+            userRepository.saveUser(updatedUser)
+            _uiState.value = _uiState.value.copy(user = updatedUser)
         }
     }
 

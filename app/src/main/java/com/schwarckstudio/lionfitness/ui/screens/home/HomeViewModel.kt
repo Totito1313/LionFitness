@@ -29,7 +29,7 @@ class HomeViewModel @Inject constructor(
 
     private val workoutsFlow = workoutRepository.getWorkoutsFlow()
     private val routinesFlow = routineRepository.getRoutinesFlow()
-    private val userFlow = flow { emit(userRepository.getCurrentUser()) }
+    private val userFlow = userRepository.getUserFlow()
 
     val uiState: StateFlow<HomeUiState> = combine(
         workoutsFlow,

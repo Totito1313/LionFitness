@@ -35,16 +35,19 @@ fun HomeScreen(
     onViewRoutinesClick: () -> Unit = {},
     onRoutineClick: (String) -> Unit = {},
     onCreateRoutineClick: () -> Unit = {},
-    onCopyRoutine: (String) -> Unit = {}
+    onCopyRoutine: (String) -> Unit = {},
+    onNavigateToProfile: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
     val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
-    LaunchedEffect(uiState.userName) {
+    LaunchedEffect(uiState.userName, uiState.userProfileUrl) {
         topBarState.update(
             variant = TopBarVariant.Home,
             userName = uiState.userName ?: "Alan",
-            showUserSubtitle = true
+            showUserSubtitle = true,
+            profilePicture = uiState.userProfileUrl,
+            onActionClick = onNavigateToProfile
         )
     }
 

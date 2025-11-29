@@ -128,6 +128,9 @@ fun LionFitnessApp(
                         onViewRoutinesClick = { navController.navigate(Screen.MyRoutines.route) },
                         onRoutineClick = { routineId ->
                             navController.navigate(Screen.RoutineDetail.createRoute(routineId))
+                        },
+                        onNavigateToProfile = {
+                            navController.navigate(Screen.Profile.route)
                         }
                     )
                 }
