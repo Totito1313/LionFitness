@@ -41,7 +41,8 @@ import com.schwarckstudio.lionfitness.ui.components.TopBarVariant
 @Composable
 fun BodyMeasurementsScreen(
     viewModel: BodyMeasurementsViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    onNavigateToBody: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -64,7 +65,7 @@ fun BodyMeasurementsScreen(
         topBarState.update(
             variant = TopBarVariant.BodyMeasurements,
             onMenuClick = { /* TODO */ },
-            onActionClick = { /* TODO */ }
+            onActionClick = onNavigateToBody
         )
     }
 

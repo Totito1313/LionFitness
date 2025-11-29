@@ -52,6 +52,7 @@ import com.schwarckstudio.lionfitness.ui.screens.stats.StatisticsScreen
 import com.schwarckstudio.lionfitness.ui.screens.workout.ActiveWorkoutScreen
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil3.CoilImage
+import com.schwarckstudio.lionfitness.ui.screens.body.BodyScreen
 
 @Composable
 fun LionFitnessApp(
@@ -331,7 +332,8 @@ fun LionFitnessApp(
                 }
                 composable(Screen.BodyMeasurements.route) {
                     com.schwarckstudio.lionfitness.ui.screens.measurements.BodyMeasurementsScreen(
-                        onNavigateBack = { navController.popBackStack() }
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToBody = { navController.navigate(Screen.Body.route) }
                     )
                 }
                 
@@ -364,6 +366,9 @@ fun LionFitnessApp(
                 }
                 composable(Screen.Settings.route) {
                     com.schwarckstudio.lionfitness.ui.screens.settings.SettingsScreen()
+                }
+                composable(Screen.Body.route) {
+                    BodyScreen()
                 }
             }
         }

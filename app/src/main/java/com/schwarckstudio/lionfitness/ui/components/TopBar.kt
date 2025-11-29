@@ -97,6 +97,7 @@ fun TopBar(
                 title = state.title.ifEmpty { "Ejercicios" },
                 hasSearch = true,
                 hasMore = true,
+                hasMenu = false, // Hide menu
                 onMenuClick = state.onMenuClick,
                 onSearchClick = state.onActionClick,
                 onMoreClick = { showMenu = true }
@@ -105,6 +106,7 @@ fun TopBar(
                 title = state.title.ifEmpty { "Configuraciones" },
                 hasSearch = true,
                 hasMore = true,
+                hasMenu = false, // Hide menu
                 onMenuClick = state.onMenuClick,
                 onSearchClick = state.onActionClick,
                 onMoreClick = { showMenu = true }
@@ -139,7 +141,7 @@ fun TopBar(
                 hasSearch = false,
                 hasMore = true,
                 onMenuClick = state.onMenuClick,
-                onMoreClick = { showMenu = true }
+                onMoreClick = state.onActionClick // Redirect to action (Body screen)
             )
 
             // --- GRUPO 4: PANTALLAS PRINCIPALES ---
@@ -340,6 +342,7 @@ fun StatsStyleHeader(
     title: String,
     hasSearch: Boolean,
     hasMore: Boolean,
+    hasMenu: Boolean = true,
     onMenuClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
     onMoreClick: () -> Unit = {}
@@ -375,15 +378,17 @@ fun StatsStyleHeader(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ) {
-                GlassButton(onClick = onMenuClick) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_menu),
-                        contentDescription = "Menú",
-                        modifier = Modifier.size(24.dp),
-                        tint = Color.Black
-                    )
+                if (hasMenu) {
+                    GlassButton(onClick = onMenuClick) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_menu),
+                            contentDescription = "Menú",
+                            modifier = Modifier.size(24.dp),
+                            tint = Color.Black
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
                 }
-                Spacer(modifier = Modifier.width(10.dp))
                 // Título flotante sin contenedor blanco
                 Text(
                     text = title,
@@ -497,7 +502,7 @@ fun ActiveTrainingHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.Transparent) // Transparent background
+            .background(Color(0xFFF1F1F3)) // Solid background
             .border(width = 1.dp, color = Color.Black.copy(alpha = 0.05f)) // border-b border-black/5
             .padding(top = 4.dp, start = 18.dp, end = 18.dp, bottom = 4.dp) // AJUSTAR PADDING AQUÍ (Antes 8.dp)
     ) {
@@ -623,11 +628,19 @@ fun StatusChip(text: String, dotColor: Color) {
 
 @Composable
 fun DeviceChip(text: String) {
-    Box(
+    Row(
         modifier = Modifier
             .background(Color(0xFF4C6EF5).copy(alpha = 0.08f), shape = RoundedCornerShape(10.dp))
-            .padding(horizontal = 10.dp, vertical = 4.dp)
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_watch),
+            contentDescription = null,
+            tint = Color(0xFF4C6EF5),
+            modifier = Modifier.size(14.dp)
+        )
+        Spacer(modifier = Modifier.width(6.dp))
         Text(text = text, fontSize = 11.sp, color = Color(0xFF4C6EF5), fontWeight = FontWeight.Medium)
     }
 }

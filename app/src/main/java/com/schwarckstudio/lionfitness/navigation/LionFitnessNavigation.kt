@@ -43,4 +43,5 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector?
     object News : Screen("news", "News")
     object Community : Screen("community", "Community")
     object Settings : Screen("settings", "Settings")
+    object Body : Screen("body", "Body")
 }
