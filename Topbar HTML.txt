@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TopBar Dinámica - Sin Fondo Texto</title>
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .transition-height { transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="bg-neutral-900 flex items-center justify-center min-h-screen p-4 font-sans text-neutral-900">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- ICONOS SVG ---
+        const Icons = {
+            Account: () => <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6"><path d="M12 2.5C17.2465 2.5 21.5 6.75323 21.5 12C21.5 17.247 17.2466 21.5 12 21.5C6.75297 21.4998 2.5 17.2468 2.5 12C2.5 6.75335 6.75297 2.50016 12 2.5ZM12 11.8545C9.25305 11.8545 6.95825 13.7792 6.38281 16.3516L6.33105 16.5859L6.48047 16.7734C7.7751 18.3885 9.76569 19.4268 12 19.4268C14.2341 19.4268 16.224 18.3885 17.5186 16.7734L17.6689 16.5859L17.6162 16.3516C17.041 13.7792 14.7464 11.8545 12 11.8545ZM11.9824 5.33008C10.3647 5.33017 9.05371 6.64144 9.05371 8.25879C9.05381 9.87581 10.3646 11.1874 11.9824 11.1875C13.6001 11.1875 14.911 9.87574 14.9111 8.25879C14.9111 6.6415 13.6 5.33008 11.9824 5.33008Z" fill="currentColor"/></svg>,
+            Menu: () => <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6"><path d="M4.5 12.75C4.08579 12.75 3.75 12.4142 3.75 12C3.75 11.5858 4.08579 11.25 4.5 11.25H19.5C19.9142 11.25 20.25 11.5858 20.25 12C20.25 12.4142 19.9142 12.75 19.5 12.75H4.5ZM4.5 7.5C4.08579 7.5 3.75 7.16421 3.75 6.75C3.75 6.33579 4.08579 6 4.5 6H19.5C19.9142 6 20.25 6.33579 20.25 6.75C20.25 7.16421 19.9142 7.5 19.5 7.5H4.5ZM4.5 18C4.08579 18 3.75 17.6642 3.75 17.25C3.75 16.8358 4.08579 16.5 4.5 16.5H19.5C19.9142 16.5 20.25 16.8358 20.25 17.25C20.25 17.6642 19.9142 18 19.5 18H4.5Z" fill="currentColor"/></svg>,
+            Search: () => <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6"><path d="M10.7778 18.8889C15.2686 18.8889 18.9167 15.2408 18.9167 10.75C18.9167 6.25917 15.2686 2.61111 10.7778 2.61111C6.28699 2.61111 2.63889 6.25917 2.63889 10.75C2.63889 15.2408 6.28699 18.8889 10.7778 18.8889Z M21.5 21.5L16.4028 16.4028" stroke="currentColor" strokeWidth="1.5"/></svg>,
+            MoreVertical: () => <svg viewBox="0 0 3 16" fill="none" className="w-6 h-6"><path d="M1.49967 12.6667C2.27607 12.6667 2.83267 13.2233 2.83267 13.9997C2.83267 14.7761 2.27607 15.3327 1.49967 15.3327C0.796467 15.3327 0.166666 14.7704 0.166666 13.9997C0.166666 13.2233 0.723267 12.6667 1.49967 12.6667ZM1.49967 6.41668C2.27607 6.41668 2.83267 6.97328 2.83267 7.74968C2.83267 8.52608 2.27607 9.08268 1.49967 9.08268C0.796467 9.08268 0.166666 8.52038 0.166666 7.74968C0.166666 6.97328 0.723267 6.41668 1.49967 6.41668ZM1.49967 0.166666C2.20287 0.166666 2.83267 0.728957 2.83267 1.49968C2.83267 2.27607 2.27607 2.83269 1.49967 2.83269C0.796467 2.83269 0.166666 2.2704 0.166666 1.49968C0.166666 0.723287 0.723267 0.166666 1.49967 0.166666Z" fill="currentColor"/></svg>,
+            MoreHorizontal: () => <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6"><path d="M11.6 16.917C12.3764 16.917 12.933 17.4736 12.933 18.25C12.933 19.0264 12.3764 19.583 11.6 19.583C10.8968 19.583 10.267 19.0207 10.267 18.25C10.267 17.4736 10.8236 16.917 11.6 16.917ZM11.6 10.667C12.3764 10.667 12.933 11.2236 12.933 12C12.933 12.7764 12.3764 13.333 11.6 13.333C10.8968 13.333 10.267 12.7707 10.267 12C10.267 11.2236 10.8236 10.667 11.6 10.667ZM11.6 4.41699C12.3032 4.41699 12.933 4.97928 12.933 5.75C12.933 6.52639 12.3764 7.08301 11.6 7.08301C10.8968 7.08301 10.267 6.52072 10.267 5.75C10.267 4.97361 10.8236 4.41699 11.6 4.41699Z" fill="currentColor"/></svg>,
+            ArrowLeft: () => <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6"><path d="M15.0379 20.3815L7.25987 12.7125C6.86287 12.3205 6.86287 11.6805 7.25987 11.2885L15.0379 3.6185" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+            Check: () => <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6"><path d="M15.7141 9.58209C15.8123 9.4836 15.9694 9.48344 16.0676 9.58112C16.1651 9.67825 16.1658 9.83645 16.0686 9.93365H16.0676L11.7288 14.2872C11.5968 14.4191 11.4234 14.4913 11.2356 14.4913C11.048 14.4912 10.8753 14.419 10.7434 14.2872L7.93189 11.4678C7.83526 11.3696 7.83551 11.2115 7.93287 11.1133C8.03053 11.016 8.18858 11.0162 8.28638 11.1143H8.28736L10.8821 13.7169L11.2356 14.0723L11.5901 13.7169L15.7141 9.58209Z" fill="currentColor"/><path d="M5.5 15.75V8.5C5.5 6.846 6.846 5.5 8.5 5.5H15.75C17.404 5.5 18.75 6.846 18.75 8.5V15.75C18.75 17.404 17.404 18.75 15.75 18.75H8.5C6.846 18.75 5.5 17.404 5.5 15.75ZM20.25 15.75V8.5C20.25 6.02 18.231 4 15.75 4H8.5C6.019 4 4 6.02 4 8.5V15.75C4 18.231 6.019 20.25 8.5 20.25H15.75C18.231 20.25 20.25 18.231 20.25 15.75Z" fill="currentColor"/></svg>,
+            Timer: () => <svg viewBox="0 0 14 14" fill="none" className="w-3.5 h-3.5"><path d="M7 3.5V7L9.33333 8.16667" stroke="#4C6EF5" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/><path d="M7 12.8333C10.2217 12.8333 12.8333 10.2217 12.8333 7C12.8333 3.77834 10.2217 1.16667 7 1.16667C3.77834 1.16667 1.16667 3.77834 1.16667 7C1.16667 10.2217 3.77834 12.8333 7 12.8333Z" stroke="#4C6EF5" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+            Heart: () => <svg viewBox="0 0 14 14" fill="none" className="w-3.5 h-3.5"><path d="M1.16667 5.54167C1.16668 4.89254 1.3636 4.25868 1.73141 3.72381C2.09923 3.18894 2.62063 2.77822 3.22677 2.5459C3.83291 2.31358 4.49526 2.27059 5.12634 2.42261C5.75742 2.57463 6.32755 2.9145 6.76142 3.39733C6.79198 3.43001 6.82892 3.45606 6.86996 3.47387C6.911 3.49168 6.95526 3.50087 7 3.50087C7.04474 3.50087 7.089 3.49168 7.13004 3.47387C7.17108 3.45606 7.20802 3.43001 7.23858 3.39733C7.67109 2.91136 8.24135 2.56863 8.87345 2.41477C9.50556 2.26091 10.1695 2.3032 10.777 2.53603C11.3845 2.76886 11.9066 3.18118 12.274 3.71811C12.6413 4.25504 12.8364 4.89111 12.8333 5.54167C12.8333 6.8775 11.9583 7.875 11.0833 8.75L7.87967 11.8493C7.77097 11.9741 7.63696 12.0744 7.48653 12.1434C7.3361 12.2125 7.17269 12.2487 7.00717 12.2498C6.84165 12.2508 6.67779 12.2167 6.5265 12.1495C6.37521 12.0824 6.23993 11.9838 6.12967 11.8603L2.91667 8.75C2.04167 7.875 1.16667 6.88334 1.16667 5.54167Z" fill="#FF6B6B" stroke="#FF6B6B" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        };
+
+        const GlassButton = ({ children, onClick, className }) => (
+            <button 
+                onClick={onClick}
+                className={`w-[50px] h-[50px] rounded-[25px] bg-[#f1f1f3]/50 backdrop-blur-md flex items-center justify-center shadow-[0px_0px_65px_0px_rgba(0,0,0,0.25)] shrink-0 active:scale-95 transition-transform ${className || ''}`}
+            >
+                {children}
+            </button>
+        );
+
+        // CORRECCIÓN: Fondo transparente, sin padding, sin altura fija
+        // Ahora el texto flota limpiamente sobre el fondo
+        const TitleContainer = ({ title, subtitle }) => (
+            <div className="flex flex-col justify-center pl-2"> {/* Agregado un pequeño pl-2 para separacion visual sutil */}
+                <h1 className="text-[20px] font-bold leading-tight text-black">{title}</h1>
+                {subtitle && <p className="text-[14px] text-[#848487] font-normal leading-none mt-0.5">{subtitle}</p>}
+            </div>
+        );
+
+        const EditHeader = ({ title }) => (
+            <div className="flex justify-between items-center px-[18px] py-[12px] h-[74px]">
+                <div className="flex items-center flex-1">
+                    <GlassButton><Icons.ArrowLeft /></GlassButton>
+                    <div className="w-[10px]"></div>
+                    <TitleContainer title={title} />
+                </div>
+                <GlassButton><Icons.Check /></GlassButton>
+            </div>
+        );
+
+        const DetailHeader = ({ title, subtitle }) => (
+            <div className="flex justify-between items-center px-[18px] py-[12px] h-[74px]">
+                <TitleContainer title={title} subtitle={subtitle} />
+                <GlassButton><Icons.MoreHorizontal /></GlassButton>
+            </div>
+        );
+
+        const CombinedPill = ({ onSearch, onMore }) => (
+            <div className="h-[50px] min-w-[100px] rounded-[25px] bg-[#f1f1f3]/50 backdrop-blur-md flex items-center justify-between px-2 gap-1 shadow-[0px_0px_65px_0px_rgba(0,0,0,0.25)]">
+                <button 
+                    onClick={onSearch}
+                    className="w-[40px] h-[40px] flex items-center justify-center rounded-full active:bg-black/5 transition-colors"
+                >
+                    <Icons.Search />
+                </button>
+                <button 
+                    onClick={onMore}
+                    className="w-[40px] h-[40px] flex items-center justify-center rounded-full active:bg-black/5 transition-colors"
+                >
+                    <Icons.MoreVertical />
+                </button>
+            </div>
+        );
+
+        const StatsStyleHeader = ({ title, hasSearch, hasMore }) => (
+            <div className="relative h-[97px] w-full">
+                <div className="absolute inset-0 bg-gradient-to-b from-[#f1f1f3] to-transparent pointer-events-none"></div>
+                <div className="relative flex justify-between items-center px-[18px] py-[12px]">
+                    <div className="flex items-center flex-1">
+                        <GlassButton><Icons.Menu /></GlassButton>
+                        <div className="w-[10px]"></div>
+                        <h1 className="text-[20px] font-bold text-black">{title}</h1>
+                    </div>
+                    
+                    <div className="flex items-center">
+                        {(hasSearch && hasMore) ? (
+                            <CombinedPill />
+                        ) : (
+                            <div className="flex gap-2">
+                                {hasSearch && <GlassButton><Icons.Search /></GlassButton>}
+                                {hasMore && <GlassButton><Icons.MoreVertical /></GlassButton>}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+
+        const GradientHeader = ({ title, subtitle, icon }) => (
+            <div className="relative h-[74px] w-full">
+                <div className="absolute inset-0 bg-gradient-to-b from-[#f1f1f3] to-transparent pointer-events-none"></div>
+                <div className="relative flex justify-between items-center px-[18px] py-[12px] h-full">
+                    <div className="flex-1 flex flex-col justify-center">
+                        <TitleContainer title={title} subtitle={subtitle} />
+                    </div>
+                    <div className="w-[50px]"></div>
+                    <div className="absolute right-[18px]">
+                        <GlassButton>{icon}</GlassButton>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const ActiveTrainingHeader = ({ duration, heartRate }) => (
+            <div className="w-full bg-[#f1f1f3]/85 backdrop-blur-md pb-3 px-[18px] pt-4 border-b border-black/5">
+                <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center">
+                        <GlassButton><Icons.ArrowLeft /></GlassButton>
+                        <div className="w-[10px]"></div>
+                        <TitleContainer title="Entrenando" />
+                    </div>
+                    <GlassButton><Icons.Check /></GlassButton>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#12b886]"></div>
+                            <span className="text-[13px] text-black/60">En curso</span>
+                        </div>
+                        <div className="bg-[#4c6ef5]/10 px-2.5 py-1 rounded-[10px]">
+                            <span className="text-[11px] font-medium text-[#4c6ef5]">Galaxy Watch</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="bg-black/5 px-2.5 py-1 rounded-[12px] flex items-center gap-1.5">
+                            <Icons.Timer />
+                            <span className="text-[13px] font-semibold text-black">{duration}</span>
+                        </div>
+                        <div className="bg-[#ff6b6b]/10 px-2.5 py-1 rounded-[12px] flex items-center gap-1.5">
+                            <Icons.Heart />
+                            <span className="text-[13px] font-semibold text-[#ff6b6b]">{heartRate} bpm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const TopBar = ({ variant, userName="Alan", duration="1:13", heartRate="128" }) => {
+            switch(variant) {
+                case 'edit-routine': return <EditHeader title="Editar Rutina" />;
+                case 'edit-training': return <EditHeader title="Editar Entrenamiento" />;
+                case 'finish-training': return <EditHeader title="Finalizar Entrenamiento" />;
+                case 'routine-details': return <DetailHeader title="Rutinas" subtitle="Detalles" />;
+                case 'training': return <DetailHeader title="Entrenamientos" subtitle="Detalles" />;
+                case 'routines': return <StatsStyleHeader title="Rutinas" hasSearch={true} hasMore={true} />;
+                case 'exercises': return <StatsStyleHeader title="Ejercicios" hasSearch={true} hasMore={true} />;
+                case 'settings': return <StatsStyleHeader title="Configuraciones" hasSearch={true} hasMore={true} />;
+                case 'community': return <StatsStyleHeader title="Comunidad" hasSearch={true} hasMore={true} />;
+                case 'stats': return <StatsStyleHeader title="Estadísticas" hasSearch={true} hasMore={true} />;
+                case 'training-summary': return <StatsStyleHeader title="Entrenamientos" hasSearch={true} hasMore={true} />;
+                case 'body': 
+                case 'body-measurements': return <StatsStyleHeader title="Medidas Corporales" hasSearch={false} hasMore={true} />;
+                case 'news': return <GradientHeader title="Noticias" icon={<Icons.MoreHorizontal />} />;
+                case 'user-profile': return <GradientHeader title="Usuario" icon={<Icons.MoreHorizontal />} />;
+                case 'home': return <GradientHeader title="Inicio" subtitle={`Feliz entrenamiento ${userName}`} icon={<Icons.Account />} />;
+                case 'active-training': return <ActiveTrainingHeader duration={duration} heartRate={heartRate} />;
+                default: return <GradientHeader title="Inicio" subtitle={`Feliz entrenamiento ${userName}`} icon={<Icons.Account />} />;
+            }
+        };
+
+        const App = () => {
+            const [currentScreen, setCurrentScreen] = useState('home');
+            
+            const isLargeHeader = currentScreen === 'active-training';
+            const paddingValue = isLargeHeader ? 136 : 97;
+
+            const NavButton = ({ label, icon, target }) => (
+                <button 
+                    onClick={() => setCurrentScreen(target)}
+                    className={`flex flex-col items-center justify-center p-3 rounded-2xl transition-all duration-200 w-full ${currentScreen === target ? 'bg-black text-white shadow-lg' : 'bg-white text-gray-600 shadow-sm'}`}
+                >
+                    <div className={`w-5 h-5 mb-1 ${currentScreen === target ? 'text-white' : 'text-gray-900'}`}>{icon}</div>
+                    <span className="text-[10px] font-bold">{label}</span>
+                </button>
+            );
+
+            return (
+                <div className="w-[375px] h-[812px] bg-[#f1f1f3] rounded-[32px] overflow-hidden relative shadow-[0_0_0_12px_#111] flex flex-col font-sans border border-gray-300">
+                    
+                    <div className="absolute top-0 left-0 right-0 z-50 transition-height duration-300 ease-in-out">
+                        <TopBar variant={currentScreen} />
+                    </div>
+
+                    <div 
+                        className="flex-1 overflow-y-auto no-scrollbar px-4 pb-8 transition-all duration-300"
+                        style={{ paddingTop: `${paddingValue}px` }}
+                    >
+                        <div className="bg-white rounded-2xl p-6 border border-gray-100 mb-6"> {/* Removed shadow here too */}
+                            <h2 className="text-xl font-bold text-black mb-2 capitalize">{currentScreen.replace(/-/g, ' ')}</h2>
+                            <p className="text-gray-500 text-sm">
+                                Texto limpio sin fondo.
+                            </p>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div>
+                                <h3 className="text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Principal</h3>
+                                <div className="grid grid-cols-3 gap-2">
+                                    <NavButton label="Inicio" target="home" icon={<Icons.Account />} />
+                                    <NavButton label="Estadísticas" target="stats" icon={<Icons.Menu />} />
+                                    <NavButton label="Noticias" target="news" icon={<Icons.MoreHorizontal />} />
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 className="text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Entrenamiento</h3>
+                                <div className="grid grid-cols-3 gap-2">
+                                    <NavButton label="Lista" target="training" icon={<Icons.Menu />} />
+                                    <NavButton label="Resumen" target="training-summary" icon={<Icons.Menu />} />
+                                    <NavButton label="Activo" target="active-training" icon={<Icons.Timer />} />
+                                    <NavButton label="Finalizar" target="finish-training" icon={<Icons.Check />} />
+                                    <NavButton label="Editar" target="edit-training" icon={<Icons.Menu />} />
+                                    <NavButton label="Ejercicios" target="exercises" icon={<Icons.Menu />} />
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 className="text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Rutinas</h3>
+                                <div className="grid grid-cols-3 gap-2">
+                                    <NavButton label="Mis Rutinas" target="routines" icon={<Icons.Menu />} />
+                                    <NavButton label="Detalles" target="routine-details" icon={<Icons.MoreHorizontal />} />
+                                    <NavButton label="Edit Rutina" target="edit-routine" icon={<Icons.Menu />} />
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 className="text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Otros</h3>
+                                <div className="grid grid-cols-3 gap-2">
+                                    <NavButton label="Perfil" target="user-profile" icon={<Icons.Account />} />
+                                    <NavButton label="Medidas" target="body-measurements" icon={<Icons.Menu />} />
+                                    <NavButton label="Config" target="settings" icon={<Icons.Menu />} />
+                                </div>
+                            </div>
+                            
+                            <div className="h-32 bg-gray-200 rounded-xl animate-pulse"></div>
+                            <div className="h-32 bg-gray-200 rounded-xl animate-pulse"></div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
