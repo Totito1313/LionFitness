@@ -25,6 +25,8 @@ import com.skydoves.landscapist.coil3.CoilImage
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import com.schwarckstudio.lionfitness.ui.components.TopBar
+import com.schwarckstudio.lionfitness.ui.components.TopBarVariant
 
 @Composable
 fun HomeScreen(
@@ -37,69 +39,33 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+    LaunchedEffect(uiState.userName) {
+        topBarState.update(
+            variant = TopBarVariant.Home,
+            userName = uiState.userName ?: "Alan",
+            showUserSubtitle = true
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = DesignSystem.Colors.Background)
-    ){
-        Column(
-            modifier = Modifier
-                .clip(shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
-                .fillMaxWidth()
-                .weight(1f)
-                .background(
-                    color = DesignSystem.Colors.Surface,
-                    shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
-                )
-                .verticalScroll(rememberScrollState())
         ){
-            // Header Section
-            Box(
-                modifier = Modifier.padding(bottom = 17.dp)
+            Column(
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .background(
+                        color = DesignSystem.Colors.Surface,
+                        shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
+                    )
+                    .verticalScroll(rememberScrollState())
             ){
-                Column(modifier = Modifier.fillMaxWidth()){
-                    Column(
-                        modifier = Modifier
-                            .padding(bottom = 24.dp)
-                            .fillMaxWidth()
-                            .background(
-                                brush = Brush.linearGradient(
-                                    colors = listOf(Color(0x00F1F1F3), DesignSystem.Colors.Surface),
-                                    start = Offset.Zero,
-                                    end = Offset(0F,Float.POSITIVE_INFINITY),
-                                )
-                            )
-                            .padding(top = 13.dp, bottom = 13.dp, start = 26.dp)
-                    ){
-                        Text("Inicio",
-                            color = DesignSystem.Colors.TextPrimary,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
-                }
-                
-                val profileImage = uiState.userProfileUrl ?: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/7SxQbFYrve/x3q924ji_expires_30_days.png"
-                
-                CoilImage(
-                    imageModel = { profileImage },
-                    imageOptions = ImageOptions(contentScale = ContentScale.Crop),
-                    modifier = Modifier
-                        .offset(x = -18.dp, y = 14.dp)
-                        .align(Alignment.TopEnd)
-                        .padding(bottom = 14.dp)
-                        .size(50.dp)
-                        .clip(CircleShape)
-                )
-                Text("Feliz entrenamiento ${uiState.userName}",
-                    color = DesignSystem.Colors.TextSecondary,
-                    fontSize = 14.sp,
-                    modifier = Modifier
-                        .offset(x = 26.dp, y = -16.dp)
-                        .align(Alignment.BottomStart)
-                        .padding(start = 26.dp)
-                )
-            }
+                // Header removed, replaced by TopBar
+                Spacer(modifier = Modifier.height(20.dp))
 
             // Heatmap Section
             Column(

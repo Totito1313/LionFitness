@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schwarckstudio.lionfitness.core.model.Routine
 import com.schwarckstudio.lionfitness.ui.theme.DesignSystem
+import com.schwarckstudio.lionfitness.ui.components.TopBar
+import com.schwarckstudio.lionfitness.ui.components.TopBarVariant
 import java.util.Locale
 
 @Composable
@@ -28,13 +30,22 @@ fun MyRoutinesScreen(
     onStartRoutine: (String) -> Unit
 ) {
     val routines by viewModel.routines.collectAsState()
+    
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+    LaunchedEffect(Unit) {
+        topBarState.update(
+            variant = TopBarVariant.Routines,
+            onMenuClick = { /* TODO */ },
+            onActionClick = { /* TODO */ }
+        )
+    }
 
     // Main Container
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color(0xFFF1F1F3))
-    ) {
+        ) {
         // Scrollable Content
         Column(
             modifier = Modifier
@@ -42,8 +53,8 @@ fun MyRoutinesScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
-            // Header Section
-            HeaderSection()
+            // Header Section removed
+            Spacer(modifier = Modifier.height(12.dp))
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -84,36 +95,7 @@ fun MyRoutinesScreen(
     }
 }
 
-@Composable
-fun HeaderSection() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "Rutinas",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
-        )
-
-        Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(50))
-                .background(Color.White)
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = { /* TODO */ }) {
-                Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.Black)
-            }
-            IconButton(onClick = { /* TODO */ }) {
-                Icon(Icons.Default.MoreVert, contentDescription = "More", tint = Color.Black)
-            }
-        }
-    }
-}
+// HeaderSection removed
 
 @Composable
 fun StatsCard(routinesCount: Int) {

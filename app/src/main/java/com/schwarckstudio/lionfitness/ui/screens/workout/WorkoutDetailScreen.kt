@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.schwarckstudio.lionfitness.ui.components.TopBar
+import com.schwarckstudio.lionfitness.ui.components.TopBarVariant
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -38,39 +40,49 @@ fun WorkoutDetailScreen(
     var editedName by remember(workout) { mutableStateOf(workout?.name ?: "") }
     var editedDescription by remember(workout) { mutableStateOf(workout?.description ?: "") }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(if (isEditing) "Editar Entrenamiento" else "Resumen") },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        if (isEditing) isEditing = false else onNavigateBack()
-                    }) {
-                        Icon(if (isEditing) Icons.Default.Close else Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+    
+    // Update TopBar state based on editing mode
+    LaunchedEffect(isEditing, workout) {
+        if (isEditing) {
+            topBarState.update(
+                variant = TopBarVariant.EditTraining,
+                title = "Editar Entrenamiento",
+                isVisible = true,
+                onBackClick = { isEditing = false },
+                onActionClick = {
                     if (workout != null) {
-                        IconButton(onClick = {
-                            if (isEditing) {
-                                // Save changes
-                                viewModel.updateWorkout(workout.copy(name = editedName, description = editedDescription))
-                                isEditing = false
-                            } else {
-                                isEditing = true
-                                editedName = workout.name
-                                editedDescription = workout.description
-                            }
-                        }) {
-                            Icon(if (isEditing) Icons.Default.Check else Icons.Default.Edit, contentDescription = "Edit")
-                        }
+                        viewModel.updateWorkout(workout.copy(name = editedName, description = editedDescription))
+                        isEditing = false
                     }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFF1F1F3)
-                )
+                }
             )
-        },
+        } else {
+            topBarState.update(
+                variant = TopBarVariant.TrainingSummary,
+                title = workout?.name?.ifEmpty { "Entrenamiento" } ?: "Detalle",
+                subtitle = "Detalles",
+                isVisible = true,
+                onBackClick = onNavigateBack,
+                onMenuClick = { 
+                    // Show menu logic is handled by TopBar component via state.menuItems
+                    // But here we need to set the menu items
+                    topBarState.menuItems = listOf(
+                        com.schwarckstudio.lionfitness.ui.components.TopBarMenuItem(
+                            text = "Editar",
+                            onClick = {
+                                isEditing = true
+                                editedName = workout?.name ?: ""
+                                editedDescription = workout?.description ?: ""
+                            }
+                        )
+                    )
+                }
+            )
+        }
+    }
+
+    Scaffold(
         containerColor = Color(0xFFF1F1F3)
     ) { paddingValues ->
         if (uiState.isLoading) {

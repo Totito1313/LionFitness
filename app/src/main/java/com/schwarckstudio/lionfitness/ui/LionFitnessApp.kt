@@ -1,9 +1,14 @@
 package com.schwarckstudio.lionfitness.ui
 
-import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -19,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -76,17 +82,38 @@ fun LionFitnessApp(
     // State for Corner Menu
     var isMenuOpen by remember { mutableStateOf(false) }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Scaffold(
-            // Remove default bottom bar
-            bottomBar = {},
-            containerColor = Color(0xFFF1F1F3) // Match app background
-        ) { innerPadding ->
-            NavHost(
-                navController = navController,
-                startDestination = startDestination!!,
-                modifier = Modifier.padding(innerPadding)
-            ) {
+    // Persistent TopBar State
+    val topBarState = remember { com.schwarckstudio.lionfitness.ui.components.TopBarState() }
+
+    androidx.compose.runtime.CompositionLocalProvider(
+        com.schwarckstudio.lionfitness.ui.components.LocalTopBarState provides topBarState
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Scaffold(
+                topBar = {
+                    com.schwarckstudio.lionfitness.ui.components.TopBar(state = topBarState)
+                },
+                // Remove default bottom bar
+                bottomBar = {},
+                containerColor = Color(0xFFF1F1F3) // Match app background
+            ) { innerPadding ->
+                NavHost(
+                    navController = navController,
+                    startDestination = startDestination!!,
+                    modifier = Modifier.padding(innerPadding),
+                    enterTransition = {
+                        fadeIn(animationSpec = tween(300)) + scaleIn(initialScale = 0.95f, animationSpec = tween(300))
+                    },
+                    exitTransition = {
+                        fadeOut(animationSpec = tween(300)) + scaleOut(targetScale = 1.05f, animationSpec = tween(300))
+                    },
+                    popEnterTransition = {
+                        fadeIn(animationSpec = tween(300)) + scaleIn(initialScale = 1.05f, animationSpec = tween(300))
+                    },
+                    popExitTransition = {
+                        fadeOut(animationSpec = tween(300)) + scaleOut(targetScale = 0.95f, animationSpec = tween(300))
+                    }
+                ) {
                 composable(Screen.GetStarted.route) {
                     GetStartedScreen(
                         onGetStartedClick = {
@@ -97,21 +124,7 @@ fun LionFitnessApp(
                         }
                     )
                 }
-                composable(
-                    route = Screen.Home.route,
-                    enterTransition = {
-                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(500))
-                    },
-                    exitTransition = {
-                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(500))
-                    },
-                    popEnterTransition = {
-                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(500))
-                    },
-                    popExitTransition = {
-                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(500))
-                    }
-                ) {
+                composable(route = Screen.Home.route) {
                     HomeScreen(
                         onViewHistoryClick = { navController.navigate(Screen.Statistics.route) },
                         onViewRoutinesClick = { navController.navigate(Screen.MyRoutines.route) },
@@ -120,38 +133,10 @@ fun LionFitnessApp(
                         }
                     )
                 }
-                composable(
-                    route = Screen.Statistics.route,
-                    enterTransition = {
-                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(500))
-                    },
-                    exitTransition = {
-                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(500))
-                    },
-                    popEnterTransition = {
-                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(500))
-                    },
-                    popExitTransition = {
-                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(500))
-                    }
-                ) {
+                composable(route = Screen.Statistics.route) {
                     StatisticsScreen()
                 }
-                composable(
-                    route = Screen.Routines.route,
-                    enterTransition = {
-                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(500))
-                    },
-                    exitTransition = {
-                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(500))
-                    },
-                    popEnterTransition = {
-                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(500))
-                    },
-                    popExitTransition = {
-                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(500))
-                    }
-                ) {
+                composable(route = Screen.Routines.route) {
                     val workoutViewModel: com.schwarckstudio.lionfitness.ui.screens.workout.WorkoutViewModel = androidx.hilt.navigation.compose.hiltViewModel()
                     RoutineListScreen(
                         onCreateRoutineClick = { navController.navigate(Screen.CreateRoutine.route) },
@@ -166,21 +151,7 @@ fun LionFitnessApp(
                         }
                     )
                 }
-                composable(
-                    route = Screen.MyRoutines.route,
-                    enterTransition = {
-                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(500))
-                    },
-                    exitTransition = {
-                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(500))
-                    },
-                    popEnterTransition = {
-                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(500))
-                    },
-                    popExitTransition = {
-                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(500))
-                    }
-                ) {
+                composable(route = Screen.MyRoutines.route) {
                     val workoutViewModel: com.schwarckstudio.lionfitness.ui.screens.workout.WorkoutViewModel = androidx.hilt.navigation.compose.hiltViewModel()
                     MyRoutinesScreen(
                         onNavigateBack = { navController.popBackStack() },
@@ -192,21 +163,7 @@ fun LionFitnessApp(
                         }
                     )
                 }
-                composable(
-                    route = Screen.Exercises.route,
-                    enterTransition = {
-                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(500))
-                    },
-                    exitTransition = {
-                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(500))
-                    },
-                    popEnterTransition = {
-                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(500))
-                    },
-                    popExitTransition = {
-                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(500))
-                    }
-                ) {
+                composable(route = Screen.Exercises.route) {
                     ExerciseListScreen(
                         onExerciseClick = { exerciseId ->
                             navController.navigate(Screen.ExerciseDetail.createRoute(exerciseId))
@@ -216,21 +173,7 @@ fun LionFitnessApp(
                         }
                     )
                 }
-                composable(
-                    route = Screen.Profile.route,
-                    enterTransition = {
-                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(500))
-                    },
-                    exitTransition = {
-                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(500))
-                    },
-                    popEnterTransition = {
-                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(500))
-                    },
-                    popExitTransition = {
-                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(500))
-                    }
-                ) {
+                composable(route = Screen.Profile.route) {
                     ProfileScreen(
                         onNavigateToLogin = {
                             // TODO: Handle navigation to login (e.g., clear backstack)
@@ -416,6 +359,15 @@ fun LionFitnessApp(
                         )
                     }
                 }
+                composable(Screen.News.route) {
+                    com.schwarckstudio.lionfitness.ui.screens.news.NewsScreen()
+                }
+                composable(Screen.Community.route) {
+                    com.schwarckstudio.lionfitness.ui.screens.community.CommunityScreen()
+                }
+                composable(Screen.Settings.route) {
+                    com.schwarckstudio.lionfitness.ui.screens.settings.SettingsScreen()
+                }
             }
         }
 
@@ -424,10 +376,11 @@ fun LionFitnessApp(
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 10.dp) // 10px margin requested, using dp assuming density 1 for simplicity or user meant dp. 10px is very small on high density. I'll stick to 10.dp as it's standard compose unit.
+                    .padding(bottom = 10.dp)
             ) {
                 com.schwarckstudio.lionfitness.navigation.FloatingNavBar(
                     currentRoute = currentRoute,
+                    isMenuOpen = isMenuOpen,
                     onNavigate = { route ->
                         isMenuOpen = false // Close menu on navigation
                         navController.navigate(route) {
@@ -443,28 +396,88 @@ fun LionFitnessApp(
             }
 
             // Corner Menu Overlay
-            if (isMenuOpen) {
-                // Position the menu relative to the nav bar or screen.
-                // Usually "Corner Menu" implies it's in a corner.
-                // The user didn't specify exact position relative to nav bar, but "CornerMenu" suggests bottom-right or similar.
-                // Given the nav bar is centered, maybe the menu should be above the "Menu" button?
-                // The "Menu" button is the last item.
-                // Let's position it at BottomEnd with some padding.
-                
+            // Scrim to close menu on outside click
+            AnimatedVisibility(
+                visible = isMenuOpen,
+                enter = fadeIn(animationSpec = tween(200)),
+                exit = fadeOut(animationSpec = tween(200))
+            ) {
                 Box(
                     modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(bottom = 90.dp, end = 20.dp) // Adjust padding to be above the nav bar
+                        .fillMaxSize()
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) { isMenuOpen = false }
+                )
+            }
+
+            // Position the menu
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 90.dp, end = 20.dp)
+            ) {
+                AnimatedVisibility(
+                    visible = isMenuOpen,
+                    enter = scaleIn(
+                        animationSpec = tween(300),
+                        transformOrigin = TransformOrigin(1f, 1f)
+                    ) + fadeIn(animationSpec = tween(300)),
+                    exit = scaleOut(
+                        animationSpec = tween(250),
+                        transformOrigin = TransformOrigin(1f, 1f)
+                    ) + fadeOut(animationSpec = tween(250))
                 ) {
                     com.schwarckstudio.lionfitness.navigation.CornerMenu(
                         onMenuItemClick = { item ->
                             isMenuOpen = false
                             when (item) {
-                                "Perfil" -> navController.navigate(Screen.Profile.route)
-                                "Comunidad" -> { /* TODO: Navigate to Community */ }
-                                "Ejercicios" -> navController.navigate(Screen.Exercises.route)
-                                "Noticias" -> { /* TODO: Navigate to News */ }
-                                "Configuraciones" -> navController.navigate(Screen.Profile.route) // Using Profile as placeholder or if settings are there
+                                "Perfil" -> {
+                                    navController.navigate(Screen.Profile.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
+                                "Comunidad" -> {
+                                    navController.navigate(Screen.Community.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
+                                "Ejercicios" -> {
+                                    navController.navigate(Screen.Exercises.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
+                                "Noticias" -> {
+                                    navController.navigate(Screen.News.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
+                                "Configuraciones" -> {
+                                    navController.navigate(Screen.Settings.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
                                 else -> {}
                             }
                         }
@@ -472,5 +485,6 @@ fun LionFitnessApp(
                 }
             }
         }
+    }
     }
 }

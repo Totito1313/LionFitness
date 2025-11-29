@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schwarckstudio.lionfitness.ui.theme.DesignSystem
+import com.schwarckstudio.lionfitness.ui.components.TopBar
+import com.schwarckstudio.lionfitness.ui.components.TopBarVariant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,108 +66,28 @@ fun ActiveWorkoutScreen(
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            Column {
-                TopAppBar(
-                    title = { 
-                        Text(
-                            "Entrenamiento Activo",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp
-                        ) 
-                    },
-                    actions = {
-                        // Watch Connection Status
-                        Icon(
-                            imageVector = Icons.Default.Watch,
-                            contentDescription = "Watch Status",
-                            tint = if (isWatchConnected) Color(0xFF4CAF50) else Color.Gray, // Green 500 or Gray
-                            modifier = Modifier.padding(end = 16.dp)
-                        )
+    val menuItems = listOf(
+        com.schwarckstudio.lionfitness.ui.components.TopBarMenuItem("Calculadora de Platos", { showPlateCalculator = true }),
+        com.schwarckstudio.lionfitness.ui.components.TopBarMenuItem("Cancelar Entrenamiento", { viewModel.cancelWorkout(onFinish) }, Color.Red)
+    )
 
-                        IconButton(onClick = { showPlateCalculator = true }) {
-                            Icon(Icons.Default.Calculate, contentDescription = "Calculadora de Platos")
-                        }
-                        
-                        Button(
-                            onClick = { viewModel.finishWorkout(onFinish) },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = DesignSystem.Colors.Primary
-                            ),
-                            shape = DesignSystem.Shapes.Button,
-                            modifier = Modifier.padding(end = 8.dp)
-                        ) {
-                            Text("Terminar")
-                        }
-                        
-                        Box {
-                            IconButton(onClick = { showMenu = true }) {
-                                Icon(Icons.Default.MoreVert, contentDescription = "More")
-                            }
-                            DropdownMenu(
-                                expanded = showMenu,
-                                onDismissRequest = { showMenu = false },
-                                containerColor = Color.White
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Cancelar Entrenamiento", color = Color.Red) },
-                                    onClick = {
-                                        showMenu = false
-                                        viewModel.cancelWorkout(onFinish)
-                                    }
-                                )
-                            }
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = DesignSystem.Colors.Surface
-                    )
-                )
-                
-                // Stats Row
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(DesignSystem.Colors.Surface)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    StatItem(
-                        icon = Icons.Default.Timer,
-                        value = formatTime(timerRemaining),
-                        label = "Descanso",
-                        color = if (isTimerRunning) DesignSystem.Colors.Primary else Color.Gray
-                    )
-                    StatItem(
-                        icon = Icons.Default.LocalFireDepartment,
-                        value = "$calories",
-                        label = "Kcal",
-                        color = Color(0xFFFF9800) // Orange
-                    )
-                    StatItem(
-                        icon = Icons.Default.Favorite,
-                        value = "$heartRate",
-                        label = "BPM",
-                        color = Color.Red
-                    )
-                }
-                HorizontalDivider(color = Color.LightGray.copy(alpha = 0.2f))
-            }
-        },
-        floatingActionButton = {
-            if (isTimerRunning) {
-                RestTimer(
-                    remainingSeconds = timerRemaining,
-                    onStop = viewModel::stopTimer,
-                    onAdd = { viewModel.addTime(10) },
-                    onSubtract = { viewModel.subtractTime(10) }
-                )
-            }
-        },
-        containerColor = DesignSystem.Colors.Background
-    ) { paddingValues ->
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+    LaunchedEffect(timerRemaining, heartRate, menuItems) {
+        topBarState.update(
+            variant = TopBarVariant.ActiveTraining,
+            duration = formatTime(timerRemaining),
+            heartRate = heartRate.toString(),
+            onActionClick = { viewModel.finishWorkout(onFinish) },
+            onBackClick = { /* Handled by TopBar */ },
+            menuItems = menuItems
+        )
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(DesignSystem.Colors.Background)
+    ) {
         if (showPlateCalculator) {
             PlateCalculatorDialog(onDismiss = { showPlateCalculator = false })
         }
@@ -173,7 +95,7 @@ fun ActiveWorkoutScreen(
         when (val state = uiState) {
             is WorkoutUiState.Inactive -> {
                 Box(
-                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     Text("Cargando entrenamiento...", color = Color.Gray)
@@ -183,7 +105,6 @@ fun ActiveWorkoutScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues)
                         .padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     contentPadding = PaddingValues(top = 16.dp, bottom = 100.dp)
@@ -218,9 +139,31 @@ fun ActiveWorkoutScreen(
                             Text("Agregar Ejercicio", fontWeight = FontWeight.Bold)
                         }
                     }
+
                 }
             }
         }
+
+        if (isTimerRunning) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+                    .padding(bottom = 80.dp)
+            ) {
+                RestTimer(
+                    remainingSeconds = timerRemaining,
+                    onStop = viewModel::stopTimer,
+                    onAdd = { viewModel.addTime(10) },
+                    onSubtract = { viewModel.subtractTime(10) }
+                )
+            }
+        }
+        
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
 

@@ -1,5 +1,6 @@
 package com.schwarckstudio.lionfitness.ui.screens.profile
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -30,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schwarckstudio.lionfitness.ui.theme.DesignSystem
+import com.schwarckstudio.lionfitness.ui.components.TopBar
+import com.schwarckstudio.lionfitness.ui.components.TopBarVariant
 
 @Composable
 fun ProfileScreen(
@@ -41,11 +44,20 @@ fun ProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+    LaunchedEffect(Unit) {
+        topBarState.update(
+            variant = TopBarVariant.UserProfile,
+            onMenuClick = { /* TODO */ },
+            onActionClick = { /* TODO */ }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(DesignSystem.Colors.Background)
-    ) {
+        ) {
         Column(
             modifier = Modifier
                 .clip(shape = DesignSystem.Shapes.Card)
@@ -57,13 +69,8 @@ fun ProfileScreen(
                 )
                 .verticalScroll(rememberScrollState())
         ) {
-            Text(
-                text = "Perfil",
-                color = DesignSystem.Colors.TextPrimary,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(20.dp)
-            )
+            // Header text removed
+            Spacer(modifier = Modifier.height(20.dp))
 
             ProfileHeader(
                 username = uiState.user?.displayName ?: "Usuario",
@@ -244,7 +251,7 @@ fun SettingsSection(title: String, items: List<SettingsItemData>) {
             items.forEachIndexed { index, item ->
                 SettingsItem(item)
                 if (index < items.size - 1) {
-                    Divider(
+                    HorizontalDivider(
                         color = DesignSystem.Colors.Surface,
                         thickness = 1.dp,
                         modifier = Modifier.padding(horizontal = 16.dp)

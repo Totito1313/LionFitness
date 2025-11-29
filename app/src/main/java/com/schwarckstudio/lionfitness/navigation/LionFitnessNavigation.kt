@@ -40,4 +40,7 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector?
     object EditProfile : Screen("edit_profile", "Edit Profile")
     object Notifications : Screen("notifications", "Notifications")
     object PrivacySecurity : Screen("privacy_security", "Privacy & Security")
+    object News : Screen("news", "News")
+    object Community : Screen("community", "Community")
+    object Settings : Screen("settings", "Settings")
 }

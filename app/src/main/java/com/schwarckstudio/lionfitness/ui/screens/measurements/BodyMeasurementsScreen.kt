@@ -1,5 +1,6 @@
 package com.schwarckstudio.lionfitness.ui.screens.measurements
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -33,6 +35,8 @@ import com.patrykandpatrick.vico.compose.chart.line.lineChart
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import com.schwarckstudio.lionfitness.ui.components.LionDialog
 import com.schwarckstudio.lionfitness.ui.theme.DesignSystem
+import com.schwarckstudio.lionfitness.ui.components.TopBar
+import com.schwarckstudio.lionfitness.ui.components.TopBarVariant
 
 @Composable
 fun BodyMeasurementsScreen(
@@ -55,50 +59,23 @@ fun BodyMeasurementsScreen(
         )
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(Color(0xFFF1F1F3))) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Top App Bar
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 18.dp, vertical = 12.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(
-                        onClick = onNavigateBack,
-                        modifier = Modifier
-                            .size(50.dp)
-                            .clip(RoundedCornerShape(40.dp))
-                            .background(Color(0x80F1F1F3))
-                    ) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                    
-                    Text(
-                        text = "Medidas Corporales",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                    
-                    Box {
-                        IconButton(
-                            onClick = { /* Menu action */ },
-                            modifier = Modifier
-                                .size(50.dp)
-                                .clip(RoundedCornerShape(40.dp))
-                                .background(Color(0x80F1F1F3))
-                        ) {
-                            Icon(Icons.Default.MoreVert, contentDescription = "Menu")
-                        }
-                        // Placeholder for DropdownMenu - to be implemented fully with state
-                    }
-                }
-            }
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+    LaunchedEffect(Unit) {
+        topBarState.update(
+            variant = TopBarVariant.BodyMeasurements,
+            onMenuClick = { /* TODO */ },
+            onActionClick = { /* TODO */ }
+        )
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFF1F1F3))
+        ) {
+            // Top App Bar removed
+            Spacer(modifier = Modifier.height(12.dp))
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -128,12 +105,12 @@ fun BodyMeasurementsScreen(
             }
         }
 
-        // Quick Add Button
         FloatingActionButton(
             onClick = { showAddMeasurementDialog = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(bottom = 120.dp, end = 18.dp)
+                .padding(16.dp)
+                .padding(bottom = 80.dp)
                 .size(60.dp),
             containerColor = Color.Transparent,
             elevation = FloatingActionButtonDefaults.elevation(0.dp)
@@ -154,6 +131,7 @@ fun BodyMeasurementsScreen(
         }
     }
 }
+
 
 @Composable
 fun AddMeasurementDialog(

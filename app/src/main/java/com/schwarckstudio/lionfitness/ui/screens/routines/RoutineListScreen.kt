@@ -32,6 +32,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.schwarckstudio.lionfitness.core.model.Routine
 import com.schwarckstudio.lionfitness.ui.theme.DesignSystem
 import com.schwarckstudio.lionfitness.ui.components.HistoryCard
+import com.schwarckstudio.lionfitness.ui.components.TopBar
+import com.schwarckstudio.lionfitness.ui.components.TopBarVariant
 
 @Composable
 fun RoutineListScreen(
@@ -48,23 +50,19 @@ fun RoutineListScreen(
     var showShareDialog by remember { mutableStateOf(false) }
     var workoutToShare by remember { mutableStateOf<com.schwarckstudio.lionfitness.core.model.WorkoutLog?>(null) }
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onCreateRoutineClick,
-                containerColor = DesignSystem.Colors.Primary,
-                contentColor = Color.White,
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Create Routine")
-            }
-        },
-        containerColor = DesignSystem.Colors.Background
-    ) { paddingValues ->
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+    LaunchedEffect(Unit) {
+        topBarState.update(
+            variant = TopBarVariant.Routines,
+            onMenuClick = { /* TODO */ },
+            onActionClick = { /* TODO */ }
+        )
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .background(DesignSystem.Colors.Background)
         ) {
             Column(
@@ -78,68 +76,8 @@ fun RoutineListScreen(
                     )
                     .verticalScroll(rememberScrollState())
             ) {
-                // Header
-                Row(
-                    modifier = Modifier
-                        .padding(bottom = 1.dp)
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp, horizontal = 18.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(Color.White),
-                        contentAlignment = Alignment.Center
-                    ) {
-                         // Menu Icon (Hamburger) - Using placeholder
-                         Icon(Icons.Default.MoreVert, contentDescription = "Menu", modifier = Modifier.rotate(90f))
-                    }
-                    
-                    Spacer(modifier = Modifier.width(16.dp))
-                    
-                    Text(
-                        text = "Entrenamientos",
-                        color = DesignSystem.Colors.TextPrimary,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(Color.White)
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    ) {
-                        val context = LocalContext.current
-                        IconButton(onClick = { 
-                            android.widget.Toast.makeText(context, "Búsqueda próximamente", android.widget.Toast.LENGTH_SHORT).show()
-                        }) {
-                            Icon(Icons.Default.Search, contentDescription = "Search")
-                        }
-                        Box {
-                            IconButton(onClick = { showMenu = true }) {
-                                Icon(Icons.Default.MoreVert, contentDescription = "More")
-                            }
-                            DropdownMenu(
-                                expanded = showMenu,
-                                onDismissRequest = { showMenu = false },
-                                containerColor = Color.White
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Ver Rutinas") },
-                                    onClick = {
-                                        showMenu = false
-                                        onNavigateToMyRoutines()
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
+                // Header removed
+                Spacer(modifier = Modifier.height(12.dp))
 
                 FeaturedSection(records = globalRecords)
 
@@ -215,6 +153,16 @@ fun RoutineListScreen(
                     Spacer(modifier = Modifier.height(100.dp))
                 }
             }
+        }
+
+        FloatingActionButton(
+            onClick = onCreateRoutineClick,
+            containerColor = DesignSystem.Colors.Primary,
+            contentColor = Color.White,
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp).padding(bottom = 80.dp)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Create Routine")
         }
     }
 }

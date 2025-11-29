@@ -32,6 +32,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.schwarckstudio.lionfitness.core.model.Exercise
 import com.schwarckstudio.lionfitness.core.model.MuscleGroup
 import com.schwarckstudio.lionfitness.ui.theme.DesignSystem
+import com.schwarckstudio.lionfitness.ui.components.TopBar
+import com.schwarckstudio.lionfitness.ui.components.TopBarVariant
 
 @Composable
 fun ExerciseListScreen(
@@ -48,72 +50,25 @@ fun ExerciseListScreen(
     // Selection state
     val selectedExerciseIds = remember { mutableStateListOf<String>() }
 
-    Scaffold(
-        containerColor = DesignSystem.Colors.Surface,
-        floatingActionButton = {
-            if (isSelectionMode && selectedExerciseIds.isNotEmpty()) {
-                Button(
-                    onClick = { 
-                        val selected = exercises.filter { it.id in selectedExerciseIds }
-                        onExercisesSelected(selected) 
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = DesignSystem.Colors.Primary),
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Icon(Icons.Default.Check, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Añadir (${selectedExerciseIds.size})")
-                }
-            }
-        }
-    ) { paddingValues ->
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+    LaunchedEffect(Unit) {
+        topBarState.update(
+            variant = TopBarVariant.Exercises,
+            onMenuClick = { /* TODO */ },
+            onActionClick = { /* TODO */ }
+        )
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(DesignSystem.Colors.Surface)
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+            modifier = Modifier.fillMaxSize()
         ) {
-            // Top App Bar
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 18.dp, vertical = 12.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = if (isSelectionMode) "Añadir Ejercicios" else "Ejercicios",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = DesignSystem.Colors.TextPrimary
-                    )
-                    
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        IconButton(
-                            onClick = { /* Search action if needed separately, but we have search bar */ },
-                            modifier = Modifier
-                                .size(50.dp)
-                                .clip(RoundedCornerShape(40.dp))
-                                .background(DesignSystem.Colors.Background) // Transparent/Light
-                        ) {
-                            Icon(Icons.Default.Search, contentDescription = "Search", tint = DesignSystem.Colors.TextPrimary)
-                        }
-                        
-                        IconButton(
-                            onClick = onNavigateToCreateCustomExercise,
-                            modifier = Modifier
-                                .size(50.dp)
-                                .clip(RoundedCornerShape(40.dp))
-                                .background(DesignSystem.Colors.Background)
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = "Add Custom", tint = DesignSystem.Colors.TextPrimary)
-                        }
-                    }
-                }
-            }
+            // Top App Bar removed
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Scrollable Content
             LazyColumn(
@@ -177,6 +132,25 @@ fun ExerciseListScreen(
                         )
                     }
                 }
+            }
+        }
+
+        if (isSelectionMode && selectedExerciseIds.isNotEmpty()) {
+            Button(
+                onClick = { 
+                    val selected = exercises.filter { it.id in selectedExerciseIds }
+                    onExercisesSelected(selected) 
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = DesignSystem.Colors.Primary),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+                    .padding(bottom = 80.dp)
+            ) {
+                Icon(Icons.Default.Check, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Añadir (${selectedExerciseIds.size})")
             }
         }
     }

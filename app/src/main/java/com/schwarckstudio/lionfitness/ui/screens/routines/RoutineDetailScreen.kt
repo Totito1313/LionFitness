@@ -1,5 +1,6 @@
 package com.schwarckstudio.lionfitness.ui.screens.routines
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,42 +34,22 @@ fun RoutineDetailScreen(
     val uiState by viewModel.uiState.collectAsState()
     val routine = uiState.routine
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Detalles de Rutina") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    if (routine != null) {
-                        IconButton(onClick = { /* TODO: Navigate to Edit Routine */ }) {
-                            Icon(Icons.Default.Edit, contentDescription = "Edit")
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = DesignSystem.Colors.Surface
-                )
-            )
-        },
-        floatingActionButton = {
-            if (routine != null) {
-                ExtendedFloatingActionButton(
-                    onClick = { onStartWorkout(routine.id) },
-                    containerColor = DesignSystem.Colors.Primary,
-                    contentColor = Color.White
-                ) {
-                    Icon(Icons.Default.PlayArrow, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Iniciar Rutina")
-                }
-            }
-        },
-        containerColor = DesignSystem.Colors.Surface
-    ) { paddingValues ->
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+    LaunchedEffect(routine) {
+        topBarState.update(
+            variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.RoutineDetails,
+            title = routine?.name ?: "Detalles de Rutina",
+            subtitle = "Detalles",
+            onBackClick = onNavigateBack,
+            onMenuClick = { /* TODO: Navigate to Edit Routine */ }
+        )
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(DesignSystem.Colors.Surface)
+    ) {
         if (uiState.isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = DesignSystem.Colors.Primary)
@@ -77,9 +58,9 @@ fun RoutineDetailScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
                     .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(top = 16.dp, bottom = 100.dp)
             ) {
                 item {
                     Text(
@@ -109,11 +90,20 @@ fun RoutineDetailScreen(
                 items(routine.exercises) { exercise ->
                     RoutineExerciseItem(exercise)
                 }
-                
-                // Spacer for FAB
-                item {
-                    Spacer(modifier = Modifier.height(80.dp))
-                }
+            }
+            
+            ExtendedFloatingActionButton(
+                onClick = { onStartWorkout(routine.id) },
+                containerColor = DesignSystem.Colors.Primary,
+                contentColor = Color.White,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+                    .padding(bottom = 80.dp)
+            ) {
+                Icon(Icons.Default.PlayArrow, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Iniciar Rutina")
             }
         } else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

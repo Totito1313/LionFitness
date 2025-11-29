@@ -1,5 +1,6 @@
 package com.schwarckstudio.lionfitness.ui.screens.stats
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -42,6 +43,9 @@ import com.schwarckstudio.lionfitness.ui.screens.routines.RoutineViewModel
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
+import com.schwarckstudio.lionfitness.ui.components.TopBar
+import com.schwarckstudio.lionfitness.ui.components.TopBarVariant
+import androidx.compose.material3.Scaffold
 
 @Composable
 fun StatisticsScreen(
@@ -53,11 +57,22 @@ fun StatisticsScreen(
     val profileState by profileViewModel.uiState.collectAsState()
     val workoutLogs by routineViewModel.workoutLogs.collectAsState()
 
+
+
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+    LaunchedEffect(Unit) {
+        topBarState.update(
+            variant = TopBarVariant.Stats,
+            onMenuClick = { /* TODO */ },
+            onActionClick = { /* TODO */ }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF3F4F6))
-    ) {
+        ) {
         Column(
             modifier = Modifier
                 .clip(shape = DesignSystem.Shapes.Card)
@@ -69,7 +84,7 @@ fun StatisticsScreen(
                 )
                 .verticalScroll(rememberScrollState())
         ) {
-            HeaderSection()
+            // HeaderSection removed
             
             Column(
                 modifier = Modifier
@@ -116,56 +131,7 @@ fun StatisticsScreen(
     }
 }
 
-@Composable
-fun HeaderSection() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        // Menu Button
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(Color.White)
-                .clickable { /* TODO */ },
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.Menu,
-                contentDescription = "Menu",
-                tint = Color.Black
-            )
-        }
-
-        Text(
-            text = "Estadísticas",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
-        )
-
-        // Right Actions
-        Row(
-            modifier = Modifier
-                .height(48.dp)
-                .clip(RoundedCornerShape(24.dp))
-                .background(Color.White)
-                .padding(horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = { /* TODO */ }) {
-                Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.Black)
-            }
-            IconButton(onClick = { /* TODO */ }) {
-                Icon(Icons.Default.MoreVert, contentDescription = "More", tint = Color.Black)
-            }
-        }
-    }
-}
+// HeaderSection removed
 
 @Composable
 fun UserProfileCard(stats: UserStats, userName: String, userLevel: String) {

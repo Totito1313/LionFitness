@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schwarckstudio.lionfitness.core.model.WorkoutLog
 import com.schwarckstudio.lionfitness.ui.theme.DesignSystem
+import com.schwarckstudio.lionfitness.ui.components.TopBar
+import com.schwarckstudio.lionfitness.ui.components.TopBarVariant
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,32 +63,19 @@ fun WorkoutSummaryScreen(
         return
     }
 
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+
+    LaunchedEffect(Unit) {
+        topBarState.update(
+            variant = TopBarVariant.FinishTraining,
+            title = "Finalizar",
+            isVisible = true,
+            onBackClick = { viewModel.returnToWorkout(onNavigateBack) },
+            onActionClick = { viewModel.saveFinishedWorkout(onSave) }
+        )
+    }
+
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Guardar Entrenamiento", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = { viewModel.returnToWorkout(onNavigateBack) }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    Button(
-                        onClick = { viewModel.saveFinishedWorkout(onSave) },
-                        colors = ButtonDefaults.buttonColors(containerColor = DesignSystem.Colors.Primary),
-                        shape = DesignSystem.Shapes.Button,
-                        modifier = Modifier.padding(end = 8.dp)
-                    ) {
-                        Text("Guardar", fontWeight = FontWeight.Bold)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DesignSystem.Colors.Background,
-                    titleContentColor = DesignSystem.Colors.TextPrimary,
-                    navigationIconContentColor = DesignSystem.Colors.TextPrimary
-                )
-            )
-        },
         containerColor = DesignSystem.Colors.Background
     ) { paddingValues ->
         Column(
