@@ -163,7 +163,8 @@ fun TopBar(
                 title = "Inicio",
                 userName = state.userName,
                 showUserSubtitle = true,
-                rightIcon = state.rightIcon ?: R.drawable.ic_more_vertical, // Fallback
+                rightIcon = state.rightIcon,
+                profilePicture = state.profilePicture,
                 onMenuClick = state.onMenuClick,
                 onActionClick = state.onActionClick
             )
@@ -443,7 +444,8 @@ fun GradientHeader(
     title: String,
     userName: String? = null,
     showUserSubtitle: Boolean,
-    rightIcon: Int,
+    rightIcon: Int? = null,
+    profilePicture: Any? = null,
     onActionClick: () -> Unit = {},
     onMenuClick: () -> Unit = {}
 ) {
@@ -480,12 +482,28 @@ fun GradientHeader(
             }
 
             GlassButton(onClick = onActionClick) {
-                Icon(
-                    painter = painterResource(id = rightIcon),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = Color.Black
-                )
+                if (profilePicture != null) {
+                    com.skydoves.landscapist.coil3.CoilImage(
+                        imageModel = { profilePicture },
+                        modifier = Modifier.fillMaxSize(),
+                        imageOptions = com.skydoves.landscapist.ImageOptions(
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                            alignment = Alignment.Center
+                        )
+                    )
+                } else if (rightIcon != null) {
+                    Icon(
+                        painter = painterResource(id = rightIcon),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = Color.Black
+                    )
+                } else {
+                    UserIcon(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.Black
+                    )
+                }
             }
         }
     }
@@ -695,5 +713,66 @@ fun Modifier.advancedShadow(
             cornersRadius.toPx(),
             paint
         )
+    }
+}
+
+@Composable
+fun UserIcon(
+    modifier: Modifier = Modifier,
+    color: Color = Color.Black
+) {
+    androidx.compose.foundation.Canvas(modifier = modifier) {
+        val path = androidx.compose.ui.graphics.Path().apply {
+            moveTo(10f, 0.5f)
+            cubicTo(15.2465f, 0.5f, 19.5f, 4.75323f, 19.5f, 10f)
+            cubicTo(19.5f, 15.247f, 15.2466f, 19.5f, 10f, 19.5f)
+            cubicTo(4.75297f, 19.4998f, 0.5f, 15.2468f, 0.5f, 10f)
+            cubicTo(0.5f, 4.75335f, 4.75297f, 0.500162f, 10f, 0.5f)
+            close()
+            moveTo(10f, 9.85449f)
+            cubicTo(7.25305f, 9.85449f, 4.95825f, 11.7792f, 4.38281f, 14.3516f)
+            lineTo(4.33105f, 14.5859f)
+            lineTo(4.48047f, 14.7734f)
+            cubicTo(5.7751f, 16.3885f, 7.76569f, 17.4268f, 10f, 17.4268f)
+            cubicTo(12.2341f, 17.4268f, 14.224f, 16.3885f, 15.5186f, 14.7734f)
+            lineTo(15.6689f, 14.5859f)
+            lineTo(15.6162f, 14.3516f)
+            cubicTo(15.041f, 11.7792f, 12.7464f, 9.85449f, 10f, 9.85449f)
+            close()
+            moveTo(9.98242f, 3.33008f)
+            cubicTo(8.36473f, 3.33017f, 7.05371f, 4.64144f, 7.05371f, 6.25879f)
+            cubicTo(7.05381f, 7.8758f, 8.36464f, 9.1874f, 9.98242f, 9.1875f)
+            cubicTo(11.6001f, 9.1875f, 12.911f, 7.87574f, 12.9111f, 6.25879f)
+            cubicTo(12.9111f, 4.6415f, 11.6f, 3.33008f, 9.98242f, 3.33008f)
+            close()
+        }
+        
+        // Scale the path to fit the canvas size if needed, or assume 20x20 viewport
+        // The SVG is 20x20. If modifier size is different, we might need scaling.
+        // For now, assuming the canvas size matches the SVG viewport or we scale.
+        // Let's scale to fit the bounds.
+        val scaleX = size.width / 20f
+        val scaleY = size.height / 20f
+        
+        drawContext.canvas.save()
+        drawContext.canvas.scale(scaleX, scaleY)
+        
+        drawPath(
+            path = path,
+            color = color,
+            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1f) // Stroke based on SVG "stroke='black'"
+        )
+        // SVG also has fill="black" but path d seems to be outlines?
+        // Wait, the SVG has fill="none" on root, but paths might be filled?
+        // The SVG path provided: <path d="..." fill="black" stroke="black"/>
+        // So it has BOTH fill and stroke.
+        
+        drawPath(
+            path = path,
+            color = color,
+            style = androidx.compose.ui.graphics.drawscope.Fill
+        )
+        
+        drawContext.canvas.restore()
     }
 }

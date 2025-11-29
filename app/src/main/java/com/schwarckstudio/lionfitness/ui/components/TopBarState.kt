@@ -30,6 +30,8 @@ class TopBarState {
     var menuItems by mutableStateOf<List<TopBarMenuItem>>(emptyList())
     var rightIcon by mutableStateOf<Int?>(null)
 
+    var profilePicture by mutableStateOf<Any?>(null)
+
     fun update(
         variant: TopBarVariant,
         title: String = "",
@@ -43,7 +45,8 @@ class TopBarState {
         onActionClick: () -> Unit = {},
         isVisible: Boolean = true,
         menuItems: List<TopBarMenuItem> = emptyList(),
-        rightIcon: Int? = null
+        rightIcon: Int? = null,
+        profilePicture: Any? = null
     ) {
         this.variant = variant
         this.title = title
@@ -58,6 +61,7 @@ class TopBarState {
         this.isVisible = isVisible
         this.menuItems = menuItems
         this.rightIcon = rightIcon
+        this.profilePicture = profilePicture
     }
 
 }
