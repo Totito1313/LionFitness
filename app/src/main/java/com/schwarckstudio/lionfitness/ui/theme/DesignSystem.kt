@@ -6,7 +6,7 @@ import androidx.compose.ui.unit.dp
 
 object DesignSystem {
     object Colors {
-        val Background = Color(0xFFFFFFFF)
+        val Background = Color(0xFFF1F1F3)
         val Surface = Color(0xFFF1F1F3)
         val Primary = Color(0xFF4C6EF5)
         val Secondary = Color(0xFF845EF7)

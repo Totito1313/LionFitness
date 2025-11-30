@@ -93,14 +93,12 @@ fun TopBar(
                 onSearchClick = state.onActionClick,
                 onMoreClick = { showMenu = true }
             )
-            TopBarVariant.Exercises -> StatsStyleHeader(
+            TopBarVariant.Exercises -> GradientHeader(
                 title = state.title.ifEmpty { "Ejercicios" },
-                hasSearch = true,
-                hasMore = true,
-                hasMenu = false, // Hide menu
+                showUserSubtitle = false,
+                rightIcon = R.drawable.ic_more_vertical,
                 onMenuClick = state.onMenuClick,
-                onSearchClick = state.onActionClick,
-                onMoreClick = { showMenu = true }
+                onActionClick = { showMenu = true }
             )
             TopBarVariant.Settings -> StatsStyleHeader(
                 title = state.title.ifEmpty { "Configuraciones" },

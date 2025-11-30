@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.sp
 
 // --- COLORES ---
 val NavBackground = Color(0xFFFFFFFF)
-val ActiveItemBg = Color(0x1ADCDCDC)
-val InactiveColor = Color(0x99000000)
+val ActiveItemBg = Color(0xFFEEEEEE)
+val InactiveColor = Color(0xFF676767)
 
 @Composable
 fun FloatingNavBar(
@@ -144,14 +144,14 @@ fun NavItem(
 
     Column(
         modifier = Modifier
-            .width(78.dp)
+            .width(75.dp)
             .clip(RoundedCornerShape(79.dp))
             .background(backgroundColor)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) { onClick() }
-            .padding(vertical = 6.dp, horizontal = 10.dp),
+            .padding(vertical = 6.dp, horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
