@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.sp
 
 // --- COLORES ---
 val NavBackground = Color(0xFFFFFFFF)
-val ActiveItemBg = Color(0xFFEEEEEE)
+val ActiveItemBg = Color(0xFFF1F1F3)
 val InactiveColor = Color(0xFF676767)
 
 @Composable
