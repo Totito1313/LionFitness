@@ -63,7 +63,7 @@ fun FloatingNavBar(
 
     // Animate offset
     val indicatorOffset by animateDpAsState(
-        targetValue = (targetIndex * 75).dp,
+        targetValue = (targetIndex * 72).dp,
         animationSpec = spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessLow),
         label = "indicatorOffset"
     )
@@ -90,7 +90,7 @@ fun FloatingNavBar(
         Box(
             modifier = Modifier
                 .offset(x = indicatorOffset)
-                .width(75.dp)
+                .width(72.dp)
                 .fillMaxHeight()
                 .alpha(indicatorAlpha)
                 .clip(RoundedCornerShape(79.dp))
@@ -171,7 +171,7 @@ fun NavItem(
 ) {
     Box(
         modifier = Modifier
-            .width(75.dp)
+            .width(72.dp)
             .clip(RoundedCornerShape(79.dp))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
@@ -196,7 +196,7 @@ fun NavItem(
                 ) {
                     iconContent(InactiveColor)
                 }
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(0.dp))
                 Text(
                     text = label,
                     color = InactiveColor,
@@ -224,7 +224,7 @@ fun NavItem(
                 ) {
                     iconContent(Color.Black)
                 }
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(0.dp))
                 Text(
                     text = label,
                     color = Color.Black,
