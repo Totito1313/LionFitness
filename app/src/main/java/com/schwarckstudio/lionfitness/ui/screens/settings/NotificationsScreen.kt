@@ -27,28 +27,26 @@ fun NotificationsScreen(
     var workoutReminders by remember { mutableStateOf(true) }
     var prAlerts by remember { mutableStateOf(true) }
 
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        topBarState.update(
+            variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.Settings,
+            title = "Notificaciones",
+            onBackClick = onNavigateBack
+        )
+    }
+
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Notificaciones", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DesignSystem.Colors.Background
-                )
-            )
-        },
+        // TopBar handled by LionFitnessApp
         containerColor = DesignSystem.Colors.Background
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
         ) {
+            Spacer(modifier = Modifier.height(70.dp))
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = Color.White),

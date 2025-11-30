@@ -85,6 +85,8 @@ fun WorkoutSummaryScreen(
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
+            Spacer(modifier = Modifier.height(70.dp))
+
             // Title Input
             Text("TÍTULO", style = MaterialTheme.typography.labelMedium, color = DesignSystem.Colors.TextSecondary)
             Spacer(modifier = Modifier.height(8.dp))

@@ -67,45 +67,34 @@ fun EditProfileScreen(
     // Local state for image preview to show immediately
     var selectedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Editar Perfil", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = {
-                            viewModel.updateProfile(
-                                displayName = displayName,
-                                weight = weight.toDoubleOrNull(),
-                                height = height.toDoubleOrNull()
-                            )
-                            onNavigateBack()
-                        }
-                    ) {
-                        Icon(Icons.Default.Check, contentDescription = "Save", tint = DesignSystem.Colors.Primary)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DesignSystem.Colors.Background,
-                    titleContentColor = DesignSystem.Colors.TextPrimary,
-                    navigationIconContentColor = DesignSystem.Colors.TextPrimary
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+    androidx.compose.runtime.LaunchedEffect(displayName, weight, height) {
+        topBarState.update(
+            variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.EditRoutine, // Reusing EditRoutine for EditProfile as layout is identical
+            title = "Editar Perfil",
+            onBackClick = onNavigateBack,
+            onActionClick = {
+                viewModel.updateProfile(
+                    displayName = displayName,
+                    weight = weight.toDoubleOrNull(),
+                    height = height.toDoubleOrNull()
                 )
-            )
-        },
+                onNavigateBack()
+            }
+        )
+    }
+
+    Scaffold(
         containerColor = DesignSystem.Colors.Background
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Spacer(modifier = Modifier.height(70.dp))
             // Profile Picture Section
             Box(
                 modifier = Modifier

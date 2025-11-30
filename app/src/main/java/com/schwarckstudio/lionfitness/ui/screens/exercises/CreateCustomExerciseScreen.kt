@@ -39,6 +39,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -73,58 +74,41 @@ fun CreateCustomExerciseScreen(
     var showMuscleSheet by remember { mutableStateOf(false) }
     var showSecondaryMuscleSheet by remember { mutableStateOf(false) }
 
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+    LaunchedEffect(name, selectedEquipment, selectedMuscle, selectedType, selectedSecondaryMuscles) {
+        topBarState.update(
+            variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.EditTraining,
+            title = "Crear Ejercicio",
+            onBackClick = onNavigateBack,
+            onActionClick = {
+                if (name.isNotBlank()) {
+                    val newExercise = Exercise(
+                        id = UUID.randomUUID().toString(),
+                        name = name,
+                        equipment = selectedEquipment,
+                        primaryMuscle = selectedMuscle,
+                        secondaryMuscles = selectedSecondaryMuscles.toList(),
+                        type = selectedType,
+                        isCustom = true
+                    )
+                    viewModel.saveCustomExercise(newExercise)
+                    onNavigateBack()
+                }
+            }
+        )
+    }
+
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Crear Ejercicio", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    Button(
-                        onClick = {
-                            if (name.isNotBlank()) {
-                                val newExercise = Exercise(
-                                    id = UUID.randomUUID().toString(),
-                                    name = name,
-                                    equipment = selectedEquipment,
-                                    primaryMuscle = selectedMuscle,
-                                    secondaryMuscles = selectedSecondaryMuscles.toList(),
-                                    type = selectedType,
-                                    isCustom = true
-                                )
-                                viewModel.saveCustomExercise(newExercise)
-                                onNavigateBack()
-                            }
-                        },
-                        enabled = name.isNotBlank(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = DesignSystem.Colors.Primary,
-                            disabledContainerColor = DesignSystem.Colors.Primary.copy(alpha = 0.5f)
-                        ),
-                        shape = DesignSystem.Shapes.Button
-                    ) {
-                        Text("Guardar", fontWeight = FontWeight.Bold)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DesignSystem.Colors.Background,
-                    titleContentColor = DesignSystem.Colors.TextPrimary,
-                    navigationIconContentColor = DesignSystem.Colors.TextPrimary
-                )
-            )
-        },
         containerColor = DesignSystem.Colors.Background
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Spacer(modifier = Modifier.height(70.dp))
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },

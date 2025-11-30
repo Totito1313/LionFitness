@@ -63,7 +63,7 @@ fun ProfileScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             // Header text removed
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(70.dp))
 
             ProfileHeader(
                 username = uiState.user?.displayName ?: "Usuario",

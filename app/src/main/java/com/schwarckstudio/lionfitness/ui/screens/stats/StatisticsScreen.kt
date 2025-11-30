@@ -78,6 +78,7 @@ fun StatisticsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             // HeaderSection removed
+            Spacer(modifier = Modifier.height(70.dp))
             
             Column(
                 modifier = Modifier

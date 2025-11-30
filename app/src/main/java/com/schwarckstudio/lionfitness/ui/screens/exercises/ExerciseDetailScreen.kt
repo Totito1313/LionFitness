@@ -15,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -29,24 +30,26 @@ fun ExerciseDetailScreen(
 ) {
     val exercise = viewModel.getExercise(exerciseId)
 
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+    LaunchedEffect(exercise) {
+        topBarState.update(
+            variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.TrainingSummary,
+            title = exercise?.name ?: "Detalle del Ejercicio",
+            subtitle = "Detalle",
+            onBackClick = onNavigateBack
+        )
+    }
+
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(exercise?.name ?: "Exercise Detail") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        }
+        // TopBar handled by LionFitnessApp
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
         ) {
+            Spacer(modifier = Modifier.height(70.dp))
             if (exercise != null) {
                 Text(text = "Primary Muscle: ${exercise.primaryMuscle}", style = MaterialTheme.typography.bodyLarge)
                 Spacer(modifier = Modifier.height(8.dp))

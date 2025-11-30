@@ -25,28 +25,26 @@ import com.schwarckstudio.lionfitness.ui.theme.DesignSystem
 fun PrivacySecurityScreen(
     onNavigateBack: () -> Unit
 ) {
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        topBarState.update(
+            variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.Settings,
+            title = "Privacidad y Seguridad",
+            onBackClick = onNavigateBack
+        )
+    }
+
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Privacidad y Seguridad", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DesignSystem.Colors.Background
-                )
-            )
-        },
+        // TopBar handled by LionFitnessApp
         containerColor = DesignSystem.Colors.Background
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
         ) {
+            Spacer(modifier = Modifier.height(70.dp))
             Text(
                 "Datos",
                 fontSize = 14.sp,

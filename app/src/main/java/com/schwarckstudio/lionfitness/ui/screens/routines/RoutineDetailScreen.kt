@@ -60,7 +60,7 @@ fun RoutineDetailScreen(
                     .fillMaxSize()
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(top = 16.dp, bottom = 100.dp)
+                contentPadding = PaddingValues(top = 70.dp, bottom = 100.dp)
             ) {
                 item {
                     Text(

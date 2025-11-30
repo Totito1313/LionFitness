@@ -90,48 +90,35 @@ fun CreateRoutineScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Crear Rutina", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DesignSystem.Colors.Background,
-                    titleContentColor = DesignSystem.Colors.TextPrimary,
-                    navigationIconContentColor = DesignSystem.Colors.TextPrimary,
-                    actionIconContentColor = DesignSystem.Colors.Primary
-                ),
-                actions = {
-                    IconButton(
-                        onClick = {
-                            if (routineName.isNotBlank()) {
-                                val newRoutine = Routine(
-                                    id = UUID.randomUUID().toString(),
-                                    name = routineName,
-                                    notes = routineNotes,
-                                    exercises = exerciseStates.map { state ->
-                                        RoutineExercise(
-                                            exerciseId = state.exercise.id,
-                                            exerciseName = state.exercise.name, // Denormalize name
-                                            notes = state.notes,
-                                            templateSets = state.sets.toList()
-                                        )
-                                    }
-                                )
-                                routineViewModel.saveRoutine(newRoutine)
-                                onNavigateBack()
-                            }
+    val topBarState = com.schwarckstudio.lionfitness.ui.components.LocalTopBarState.current
+    LaunchedEffect(routineName, routineNotes, exerciseStates.size) {
+        topBarState.update(
+            variant = com.schwarckstudio.lionfitness.ui.components.TopBarVariant.EditRoutine,
+            title = "Crear Rutina",
+            onBackClick = onNavigateBack,
+            onActionClick = {
+                if (routineName.isNotBlank()) {
+                    val newRoutine = Routine(
+                        id = UUID.randomUUID().toString(),
+                        name = routineName,
+                        notes = routineNotes,
+                        exercises = exerciseStates.map { state ->
+                            RoutineExercise(
+                                exerciseId = state.exercise.id,
+                                exerciseName = state.exercise.name, // Denormalize name
+                                notes = state.notes,
+                                templateSets = state.sets.toList()
+                            )
                         }
-                    ) {
-                        Icon(Icons.Default.Check, contentDescription = "Save")
-                    }
+                    )
+                    routineViewModel.saveRoutine(newRoutine)
+                    onNavigateBack()
                 }
-            )
-        },
+            }
+        )
+    }
+
+    Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToAddExercise,
@@ -147,9 +134,10 @@ fun CreateRoutineScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Spacer(modifier = Modifier.height(70.dp))
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 shape = RoundedCornerShape(16.dp),

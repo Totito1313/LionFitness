@@ -54,7 +54,7 @@ fun MyRoutinesScreen(
                 .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
             // Header Section removed
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(70.dp))
 
             Spacer(modifier = Modifier.height(24.dp))
 

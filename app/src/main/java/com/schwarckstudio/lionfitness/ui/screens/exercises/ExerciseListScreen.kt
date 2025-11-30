@@ -61,12 +61,13 @@ fun ExerciseListScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             // Top App Bar removed
-            Spacer(modifier = Modifier.height(12.dp))
+            // Top App Bar removed
+
 
             // Scrollable Content
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 100.dp)
+                contentPadding = PaddingValues(top = 70.dp, bottom = 100.dp)
             ) {
                 item {
                     SearchBar(

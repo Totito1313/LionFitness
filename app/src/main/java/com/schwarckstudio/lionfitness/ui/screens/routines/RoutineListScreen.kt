@@ -70,7 +70,7 @@ fun RoutineListScreen(
                     .verticalScroll(rememberScrollState())
             ) {
                 // Header removed
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(70.dp))
 
                 FeaturedSection(records = globalRecords)
 

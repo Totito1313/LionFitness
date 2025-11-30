@@ -59,7 +59,7 @@ fun HomeScreen(
                     .verticalScroll(rememberScrollState())
             ){
                 // Header removed, replaced by TopBar
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(70.dp))
 
             // Heatmap Section
             Column(
